@@ -1,0 +1,89 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - orchestrator_network
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "15672:15672"  # Porta da interface web do RabbitMQ
+      - "5672:5672"    # Porta padrão do RabbitMQ
+    networks:
+      - orchestrator_network
+
+  django:
+    build: .
+    command: gunicorn orchestrator.wsgi:application --bind 0.0.0.0:8000
+    volumes:
+      - .:/app
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - DATABASE_URL=${DATABASE_URL}
+      - CELERY_BROKER_URL=${CELERY_BROKER_URL}
+    depends_on:
+      - db
+      - rabbitmq
+    networks:
+      - orchestrator_network
+
+  celery_worker:
+    build: .
+    command: celery -A orchestrator_rpa.orchestrator.orchestrator worker --loglevel=info
+    volumes:
+      - .:/app
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - DATABASE_URL=${DATABASE_URL}
+      - CELERY_BROKER_URL=${CELERY_BROKER_URL}
+    depends_on:
+      - rabbitmq
+      - db
+    networks:
+      - orchestrator_network
+
+  celery_beat:
+    build: .
+    command: celery -A orchestrator_rpa.orchestrator.orchestrator beat --loglevel=info
+    volumes:
+      - .:/app
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - DATABASE_URL=${DATABASE_URL}
+      - CELERY_BROKER_URL=${CELERY_BROKER_URL}
+    depends_on:
+      - rabbitmq
+      - db
+    networks:
+      - orchestrator_network
+
+  nginx:
+    image: nginx:alpine
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+    ports:
+      - "80:80"  # Porta padrão do Nginx
+    depends_on:
+      - django
+    networks:
+      - orchestrator_network
+
+volumes:
+  postgres_data:
+
+networks:
+  orchestrator_network:
