@@ -22,10 +22,11 @@ services:
 
   django:
     build: .
-    command: gunicorn orchestrator.wsgi:application --bind 0.0.0.0:8000
+    command: gunicorn apps.core.wsgi:application --bind 0.0.0.0:8000
     volumes:
-      - .:/app
+      - .:/apps
     environment:
+      - PYTHONPATH=/apps
       - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
@@ -39,9 +40,9 @@ services:
 
   celery_worker:
     build: .
-    command: celery -A orchestrator_rpa.orchestrator.orchestrator worker --loglevel=info
+    command: celery -A apps.core worker --loglevel=info
     volumes:
-      - .:/app
+      - .:/apps
     environment:
       - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_USER=${POSTGRES_USER}
@@ -56,9 +57,9 @@ services:
 
   celery_beat:
     build: .
-    command: celery -A orchestrator_rpa.orchestrator.orchestrator beat --loglevel=info
+    command: celery -A apps.core beat --loglevel=info
     volumes:
-      - .:/app
+      - .:/apps
     environment:
       - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_USER=${POSTGRES_USER}
@@ -75,6 +76,8 @@ services:
     image: nginx:alpine
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./apps/staticfiles:/apps/apps/staticfiles 
+      - ./apps/media:/apps/media 
     ports:
       - "80:80"  # Porta padrão do Nginx
     depends_on:

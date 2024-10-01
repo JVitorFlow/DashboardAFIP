@@ -1,0 +1,128 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} Tarefas {% endblock %}
+
+<!-- CSS específico da página -->
+{% block stylesheets %}{% endblock stylesheets %}
+
+{% block content %}
+
+<div class="container-fluid mt-4">
+    <!-- Seção dos Cards -->
+    <div class="row">
+        <div class="col-12 col-sm-6 col-xl-4 mb-4">
+            <div class="card border-0 shadow h-100">
+                <div class="card-body d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center">
+                        <div class="icon-shape icon-shape-primary rounded me-3">
+                            <!-- Ícone de tarefas -->
+                            <svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 512 512">
+                                <path d="M152.1 38.2c9.9 8.9 10.7 24 1.8 33.9l-72 80c-4.4 4.9-10.6 7.8-17.2 7.9s-12.9-2.4-17.6-7L7 113C-2.3 103.6-2.3 88.4 7 79s24.6-9.4 33.9 0l22.1 22.1 55.1-61.2c8.9-9.9 24-10.7 33.9-1.8zm0 160c9.9 8.9 10.7 24 1.8 33.9l-72 80c-4.4 4.9-10.6 7.8-17.2 7.9s-12.9-2.4-17.6-7L7 273c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l22.1 22.1 55.1-61.2c8.9-9.9 24-10.7 33.9-1.8zM224 96c0-17.7 14.3-32 32-32H480c17.7 0 32 14.3 32 32s-14.3 32-32 32H256c-17.7 0-32-14.3-32-32zm0 160c0-17.7 14.3-32 32-32H480c17.7 0 32-14.3 32 32s-14.3 32-32 32H256c-17.7 0-32-14.3-32-32zM160 416c0-17.7 14.3-32 32-32H480c17.7 0 32 14.3 32 32s-14.3 32-32 32H192c-17.7 0-32-14.3-32-32zM48 368a48 48 0 1 1 0 96 48 48 0 1 1 0-96z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h2 class="fw-bold h5 mb-1">Tarefas carregadas</h2>
+                            <h3 class="fw-bold">{{ object_list|length }}</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card de Itens Carregados -->
+        <div class="col-12 col-sm-6 col-xl-4 mb-4">
+            <div class="card border-0 shadow h-100">
+                <div class="card-body d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center">
+                        <div class="icon-shape icon-shape-primary rounded me-3">
+                            <!-- Ícone de itens -->
+                            <svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 512 512">
+                                <path d="M64 144a48 48 0 1 0 0-96 48 48 0 1 0 0 96zM192 64c-17.7 0-32 14.3-32 32s14.3 32 32 32H480c17.7 0 32-14.3 32-32s-14.3-32-32-32H192zm0 160c-17.7 0-32 14.3-32 32s14.3 32 32 32H480c17.7 0 32-14.3 32-32s-14.3-32-32-32H192zm0 160c-17.7 0-32 14.3-32 32s14.3 32 32 32H480c17.7 0 32-14.3 32-32s-14.3-32-32-32H192zM64 464a48 48 0 1 0 0-96 48 48 0 1 0 0 96zm48-208a48 48 0 1 0 -96 0 48 48 0 1 0 96 0z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h2 class="fw-bold h5 mb-1">Itens carregados</h2>
+                            <h3 class="fw-bold">{{ total_items }}</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card de Robôs Disponíveis -->
+        <div class="col-12 col-sm-6 col-xl-4 mb-4">
+            <div class="card border-0 shadow h-100">
+                <div class="card-body d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center">
+                        <div class="icon-shape icon-shape-primary rounded me-3">
+                            <!-- Ícone de robôs -->
+                            <svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 640 512">
+                                <path d="M320 0c17.7 0 32 14.3 32 32V96H472c39.8 0 72 32.2 72 72V440c0 39.8-32.2 72-72 72H168c-39.8 0-72-32.2-72-72V168c0-39.8 32.2-72 72-72H288V32c0-17.7 14.3-32 32-32zM208 384c-8.8 0-16 7.2-16 16s7.2 16 16 16h32c8.8 0 16-7.2 16-16s-7.2-16-16-16H208zm96 0c-8.8 0-16 7.2-16 16s7.2 16 16 16h32c8.8 0 16-7.2 16-16s-7.2-16-16-16H304zm96 0c-8.8 0-16 7.2-16 16s7.2 16 16 16h32c8.8 0 16-7.2 16-16s-7.2-16-16-16H400zM264 256a40 40 0 1 0 -80 0 40 40 0 1 0 80 0zm152 40a40 40 0 1 0 0-80 40 40 0 1 0 0 80zM48 224H64V416H48c-26.5 0-48-21.5-48-48V272c0-26.5 21.5-48 48-48zm544 0c26.5 0 48 21.5 48 48v96c0 26.5-21.5 48-48 48H576V224h16z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h2 class="fw-bold h5 mb-1">Robôs disponíveis</h2>
+                            <h3 class="fw-bold">{{ available_robots }}</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabela de Tarefas -->
+    <div class="row">
+        <div class="col-12 mb-4">
+            <div class="card border-0 shadow">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h2 class="fs-5 fw-bold mb-0">Suas tarefas</h2>
+                    <div>
+                        {% include 'includes/modal_add_tasks.html' %}
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="table align-items-center table-flush">
+                        <thead class="thead-light">
+                            <tr>
+                                <th class="border-bottom" scope="col">Id</th>
+                                <th class="border-bottom" scope="col">Processo</th>
+                                <th class="border-bottom" scope="col">Robô</th>
+                                <th class="border-bottom" scope="col">Data de criação</th>
+                                <th class="border-bottom" scope="col">Data de início</th>
+                                <th class="border-bottom" scope="col">Data de término</th>
+                                <th class="border-bottom" scope="col">Status</th>
+                                <th class="border-bottom">Ação</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for task in object_list %}
+                            <tr>
+                                <td>{{ task.id }}</td>
+                                <td>{{ task.process_id }}</td>
+                                <td>
+                                    {% if not task.robot_id %}
+                                        Não atribuído
+                                    {% else %}
+                                        {{ task.robot_id.user_id.username }}
+                                    {% endif %}
+                                </td>
+                                <td>{{ task.created_at|date:"d/m/Y H:i" }}</td>
+                                <td>{{ task.started_at|date:"d/m/Y H:i" }}</td>
+                                <td>{{ task.ended_at|date:"d/m/Y H:i" }}</td>
+                                <td class="fw-bolder {% if task.status == 'CREATED' %}text-info{% elif task.status == 'STARTED' %}text-warning{% elif task.status == 'COMPLETED' %}text-success{% elif task.status == 'ERROR' %}text-danger{% endif %}">{{ task.status }}</td>
+                                <td><a class="btn btn-sm btn-primary" href="{% url 'items' task.id %}">Ver itens</a></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% include 'includes/paginate.html' %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}
+
+<!-- JS específico da página -->
+{% block javascripts %}{% endblock javascripts %}

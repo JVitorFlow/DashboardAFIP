@@ -1,0 +1,75 @@
+{% extends "layouts/base-fullscreen.html" %}
+
+{% block title %} Entrar {% endblock %} 
+
+<!-- CSS específico da página vai AQUI -->
+{% block stylesheets %}{% endblock stylesheets %}
+
+{% block content %}
+
+    <main>
+        <section class="vh-lg-100 mt-5 mt-lg-0 bg-soft d-flex align-items-center">
+            <div class="container">
+                <div class="row justify-content-center form-bg-image" data-background-lg="/static/assets/img/illustrations/signin.svg">
+                    <div class="col-12 d-flex align-items-center justify-content-center">
+                        <div class="bg-white shadow border-0 rounded border-light p-4 p-lg-5 w-100 fmxw-500">
+                            <div class="text-center text-md-center mb-4 mt-md-0">
+                                <h1 class="mb-0 h3">
+                                    Entrar
+                                </h1>
+                                <br />
+                                <p>
+                                    {% if msg %}
+                                        {{ msg | safe }}
+                                    {% else %}
+                                        Insira suas credenciais fornecidas pelo administrador
+                                    {% endif %}                                     
+                                </p> 
+                            </div>
+                            <form method="post" action="" class="mt-4">
+                                
+                                {% csrf_token %}
+
+                                <!-- Formulário -->
+                                <div class="form-group mb-4">
+                                    <label for="email">Nome de usuário:</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text" id="basic-addon1">
+                                            <span class="fas fa-user-circle"></span>
+                                        </span>
+                                        {{ form.username }}
+                                    </div>  
+                                </div>
+                                <!-- Fim do Formulário -->
+                                <div class="form-group">
+                                    <!-- Formulário -->
+                                    <div class="form-group mb-4">
+                                        <label for="password">Senha:</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text" id="basic-addon2">
+                                                <span class="fas fa-unlock-alt"></span>
+                                            </span>
+                                            {{ form.password }}
+                                        </div>  
+                                    </div>
+                                    <!-- Fim do Formulário -->
+                                    <div class="d-flex justify-content-between align-items-top mb-4">
+                                        <div class="small text-right">Esqueceu sua senha?</div>
+                                        <div class="small text-right">Entre em contato com o administrador</div>
+                                    </div>
+                                </div>
+                                <div class="d-grid">
+                                    <button type="submit" name="login" class="btn btn-gray-800">Entrar</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+{% endblock content %}
+
+<!-- JS específico da página vai AQUI -->
+{% block javascripts %}{% endblock javascripts %}

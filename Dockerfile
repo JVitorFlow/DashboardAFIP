@@ -22,4 +22,4 @@ COPY . /app/
 EXPOSE 8000
 
 # Comando para iniciar o servidor Gunicorn
-CMD ["gunicorn", "--chdir", "/app/orchestrator_rpa", "--config", "gunicorn-cfg.py", "orchestrator.orchestrator.wsgi"]
+CMD ["gunicorn", "--config", "gunicorn-cfg.py", "apps.core.wsgi:application"]
