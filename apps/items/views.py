@@ -2,82 +2,157 @@ from typing import Any, Dict
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.db.models.query import QuerySet
-from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import viewsets, status
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import action
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import ListView
 from django.shortcuts import get_object_or_404
 from apps.robots.models import Robot
+from collections import defaultdict
 from apps.items.models import Item
 from apps.tasks.models import Task
-from .serializer import ItemSerializer
-from apps.api.utils import token_login, check_id, check_if_can_change_status
+from .serializer import TaskSummarySerializer, ItemSerializer
+from apps.api.utils import check_id, check_if_can_change_status
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
-from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework.exceptions import NotFound
 
-
-class ItemAPIView(APIView):
+class ItemViewSet(viewsets.ModelViewSet):
     """
-    Visualizar para editar o estado de um item.
-
-    Esta visualização permite editar o estado de um item usando o 'robot_id'
-    e parâmetros 'item_id'.
-
-    Atributos:
-        authentication_classes (lista): Lista de classes de autenticação
-        aplicado à vista.
-        permission_classes (lista): Lista de classes de permissão aplicadas
-        para a vista.
+    ViewSet para visualizar, editar e gerenciar itens.
     """
-    
-    authentication_classes = [JWTAuthentication]
+    queryset = Item.objects.all()
+    serializer_class = ItemSerializer
     permission_classes = [IsAuthenticated]
 
     @swagger_auto_schema(
+        operation_description="Listar todos os itens cadastrados.",
+        operation_summary="Listar Itens"
+    )
+    def list(self, request, *args, **kwargs):
+        """
+        Listar todos os itens cadastrados no sistema.
+        """
+        return super().list(request, *args, **kwargs)
+
+    @swagger_auto_schema(
+        operation_description="Criar um novo item no sistema.",
+        operation_summary="Criar Item"
+    )
+    def create(self, request, *args, **kwargs):
+        """
+        Criar um novo item no sistema.
+        """
+        return super().create(request, *args, **kwargs)
+
+    @swagger_auto_schema(
+        operation_description="Obter detalhes de um item específico pelo ID.",
+        operation_summary="Detalhar Item"
+    )
+    def retrieve(self, request, *args, **kwargs):
+        """
+        Obter detalhes de um item específico pelo ID.
+        """
+        return super().retrieve(request, *args, **kwargs)
+
+    @swagger_auto_schema(
+        operation_description="Atualizar completamente um item específico pelo ID.",
+        operation_summary="Atualizar Item"
+    )
+    def update(self, request, *args, **kwargs):
+        """
+        Atualizar completamente um item específico pelo ID.
+        """
+        return super().update(request, *args, **kwargs)
+
+    @swagger_auto_schema(
+        operation_description="Atualizar parcialmente um item específico pelo ID.",
+        operation_summary="Atualizar Parcialmente Item"
+    )
+    def partial_update(self, request, *args, **kwargs):
+        """
+        Atualizar parcialmente um item específico pelo ID.
+        """
+        return super().partial_update(request, *args, **kwargs)
+
+    @swagger_auto_schema(
+        operation_description="Deletar um item específico pelo ID.",
+        operation_summary="Deletar Item"
+    )
+    def destroy(self, request, *args, **kwargs):
+        """
+        Deletar um item específico pelo ID.
+        """
+        return super().destroy(request, *args, **kwargs)
+
+    @swagger_auto_schema(
+        operation_description="Listar todos os itens pendentes com status 'CREATED'.",
+        operation_summary="Listar Itens Pendentes"
+    )
+    @action(detail=False, methods=['get'], url_path='pending')
+    def list_pending(self, request):
+        """
+        Lista todos os itens pendentes que precisam ser processados pelo RPA.
+        """
+        # Filtra apenas os itens com status "CREATED"
+        pending_items = Item.objects.filter(status="CREATED")
+
+        # Caso não existam itens pendentes, retorna uma resposta clara
+        if not pending_items.exists():
+            return Response(
+                {"detail": "Nenhum item pendente encontrado."},
+                status=status.HTTP_200_OK
+            )
+                
+        # Organiza os itens por tarefa usando um dicionário
+        tasks_dict = defaultdict(list)
+        for item in pending_items:
+            tasks_dict[item.task_id].append(item)
+
+        response_data = []
+        for task, items in tasks_dict.items():
+            # Serializa os dados da tarefa usando o resumo da tarefa
+            task_data = TaskSummarySerializer(task).data
+            task_data['items'] = ItemSerializer(items, many=True).data
+            response_data.append(task_data)
+
+        return Response(response_data, status=status.HTTP_200_OK)
+
+    @swagger_auto_schema(
+        operation_description="Atualizar o status de um item pelo seu ID e pelo `robot_id` associado.",
+        operation_summary="Atualizar Status do Item",
         manual_parameters=[
             openapi.Parameter("robot_id", openapi.IN_QUERY, description="ID do robô.", type=openapi.TYPE_INTEGER),
-            openapi.Parameter("item_id", openapi.IN_QUERY, description="ID do item.", type=openapi.TYPE_INTEGER),
-            openapi.Parameter("status", openapi.IN_QUERY, description="novo status da tarefa.", type=openapi.TYPE_STRING),
+            openapi.Parameter("status", openapi.IN_QUERY, description="Novo status do item.", type=openapi.TYPE_STRING),
             openapi.Parameter("item__started_at", openapi.IN_QUERY, description="Data e hora de início (formato: AAAA-MM-DD HH:MM:SS).", type=openapi.TYPE_STRING),
             openapi.Parameter("item__ended_at", openapi.IN_QUERY, description="Data e hora de término (formato: AAAA-MM-DD HH:MM:SS).", type=openapi.TYPE_STRING),
-            openapi.Parameter("item__observation", openapi.IN_QUERY, description="Observação do item.", type=openapi.TYPE_STRING),
-        ],
-        operation_description="Esquema personalizado para ItemAPIView"
+        ]
     )
-    def patch(self, request):
+    @action(detail=True, methods=['patch'], url_path='update-status')
+    def update_status(self, request, pk=None):
         """
-        Edita o estado de um item usando os parâmetros 'robot_id' e 'item_id'.
+        Edita o estado de um item pelo seu ID e o `robot_id` associado.
 
         Parâmetros:
         - robot_id (int): ID do robô associado ao item.
-        - item_id (int): ID do item a ser editado.
-        - status (str): Status do item a ser editado.
+        - status (str): Novo status do item.
 
         Retorna:
-        Response: Resposta HTTP com o resultado da operação.
-
-        Autenticação:
-        - Token Bearer:
-            Um token de API válido deve ser fornecido no cabeçalho 'Authorization'.
-            Exemplo: Authorization: Token XXXX-XXXX-XXXX-XXXX
+        - Response: Resposta HTTP com o resultado da operação.
         """
         robot_id = request.data.get('robot_id')
-        item_id = request.data.get('item_id')
+        if not robot_id:
+            return Response({'detail': 'robot_id ausente ou inválido.'}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Verifique se os IDs fornecidos são válidos
-        if not robot_id or not item_id:
-            return Response({'detail': 'IDs inválidos.'}, status=status.HTTP_400_BAD_REQUEST)
-
-        check_id(robot_id, item_id)
+        check_id(robot_id, pk)
 
         try:
-            Robot.objects.get(id=robot_id)
-            item = Item.objects.get(id=item_id)
+            robot = Robot.objects.get(id=robot_id)
+            item = Item.objects.get(id=pk)
         except (Robot.DoesNotExist, Item.DoesNotExist):
-            return Response({'detail': 'Robô ou item não encontrado.'}, status=status.HTTP_404_NOT_FOUND)
+            raise NotFound(detail="Robô ou item não encontrado.")
 
         # Verifica se pode alterar o status do item
         check_if_can_change_status(item)
@@ -87,7 +162,7 @@ class ItemAPIView(APIView):
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
-        
+
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class ItemListView(LoginRequiredMixin, ListView):

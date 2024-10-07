@@ -19,10 +19,10 @@ def get_active_robots():
 
 def get_min_robot():
     """
-    Obtains the robot with the fewest items assigned to it.
+    Obtém o robô com o menor número de itens atribuídos a ele.
 
-    Returns:
-        Robot: Robot object with the minimum number of assigned items.
+    Retorna:
+        Robô: Objeto robô com o número mínimo de itens atribuídos.
     """
     robots = get_active_robots()
     if not robots:

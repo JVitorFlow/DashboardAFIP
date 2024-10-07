@@ -7,13 +7,13 @@ from apps.robots.utils import get_min_robot
 
 def get_tasks_from_items(items):
     """
-    Obtains unique tasks from a list of items.
+    Obtém tarefas exclusivas de uma lista de itens.
 
-    Parameters:
-    - items (QuerySet): Set of items.
+    Parâmetros:
+    - itens (QuerySet): Conjunto de itens.
 
-    Returns:
-    QuerySet: Set of unique tasks related to the provided items.
+    Retorna:
+    QuerySet: Conjunto de tarefas exclusivas relacionadas aos itens fornecidos.
     """
     unique_task_ids = items.values_list('task_id', flat=True).distinct()
     unique_tasks = Task.objects.filter(id__in=unique_task_ids)
@@ -22,49 +22,59 @@ def get_tasks_from_items(items):
 
 def read_file(file, user, process):
     """
-    Reads a CSV file and creates Item and Value objects in the database.
+    Lê um arquivo CSV e cria objetos Item no banco de dados.
 
-    Parameters:
-    - file (File): The CSV file to be read.
-    - user (User): The user associated with the task.
-    - process (Process): The process associated with the task.
+    Parâmetros:
+    - file (Arquivo): O arquivo CSV a ser lido.
+    - user (User): O usuário associado à tarefa.
+    - process (Process): O processo associado à tarefa.
 
-    Returns:
-    bool: True if the operation was successful,
-          False if a robot couldn't be assigned.
+    Retorna:
+    bool: Verdadeiro se a operação foi bem-sucedida,
+          Falso se um robô não puder ser atribuído.
     """
+    # Obtém o robô com menor carga
     robot = get_min_robot()
-    task = Task.objects.create(user_id=user, process_id=process,
-                               robot_id=robot)
-    # Read the CSV file using DictReader
+    task = Task.objects.create(user_id=user, process_id=process, robot_id=robot)
+
+    # Ler o arquivo CSV utilizando DictReader
     csv_reader = csv.DictReader(file.read().decode('utf-8').splitlines())
 
-    # List to store Item and Value objects to create
+    # Lista para armazenar os objetos Item a serem criados
     items_to_create = []
-    values_to_create = []
 
-    # Iterate over the rows of the CSV file and add to the list
+    # Iterar sobre as linhas do arquivo CSV e adicionar à lista
     for row in csv_reader:
         try:
+            # Extrair o valor da coluna "O.S."
+            os_field = row.get('O.S.')
+            if not os_field:
+                continue
+
+            # Dividir a string em número da OS e nome, removendo ponto e vírgula
+            os_field = os_field.rstrip(';')
+            os_number, os_name = os_field.split(' - ', 1)
+            os_number = os_number.strip()
+            os_name = os_name.strip()
+
+            # Criar um objeto Item e associar à tarefa
             item = Item(
                 task_id=task,
                 robot_id=robot,
-                )
-            value = Value(
-                item_id=item,
-                value_number=row.get('linea'),
-                value_text=row.get('valor'),
-                name=row.get('field'),
+                os_number=os_number,
+                os_name=os_name
             )
-        except Exception:
-            continue
-        else:
             items_to_create.append(item)
-            values_to_create.append(value)
 
-    # Insert the objects into the database using bulk_create
+        except Exception as e:
+            print(f"Erro ao processar linha: {row}. Erro: {e}")
+            continue
+
+    # Inserir os objetos Item no banco de dados usando bulk_create
     Item.objects.bulk_create(items_to_create)
-    Value.objects.bulk_create(values_to_create)
+
     if not robot:
         return False
     return True
+
+

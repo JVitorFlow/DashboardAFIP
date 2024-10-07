@@ -14,22 +14,31 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" 
           integrity="sha512-1ycn6IcaQQ40/MKBW2W4Rhis/DbILU74C1vSrLJxCq57o941Ym01SwNsOMqvEBFlcgUa6xLiPY/NS5R+E6ztJQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link type="text/css" href="{% static 'assets/vendor/sweetalert2/dist/sweetalert2.min.css' %}" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/notyf/3.10.0/notyf.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/notyf/3.10.0/notyf.min.css" integrity="sha512-ZX18S8AwqoIm9QCd1EYun82IryFikdJt7lxj6583zx5Rvr5HoreO9tWY6f2VhSxvK+48vYFSf4zFtX/t2ge62g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link type="text/css" href="{% static 'assets/css/volt.css' %}" rel="stylesheet">
-    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/boxicons@2.0.9/css/boxicons.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'assets/css/sidebar.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/content.css' %}">
     {% block stylesheets %}{% endblock stylesheets %}
 
 </head>
 <body>
 
     <!-- Sidebar -->
-    {% include 'includes/sidebar.html' %}
+    <div class="main-container">
+      <!-- Sidebar -->
+      {% include 'includes/sidebar.html' %}
 
-    <div class="home-section" style="margin-left: 250px;">
-      {% block content %}
-      {% endblock content %}
+      <!-- Seção de Conteúdo -->
+      <div class="content-section">
+          <!-- Conteúdo Principal -->
+          <main>
+              {% block content %}{% endblock content %}
+          </main>
+      </div>
     </div>
 
 
@@ -39,5 +48,39 @@
     {% block javascripts %}
     {% endblock javascripts %}
 
+    <script>
+      // Seletores
+      const sidebar = document.querySelector(".sidebar");
+      const sidebarBtn = document.querySelector("#sidebarToggle");
+      const contentSection = document.querySelector(".content-section");
+      const header = document.querySelector(".pc-header");
+  
+      // Evento de Clique para Toggle da Sidebar
+      sidebarBtn.addEventListener("click", () => {
+          sidebar.classList.toggle("close");
+  
+          if (sidebar.classList.contains("close")) {
+              contentSection.style.marginLeft = "78px";
+              contentSection.style.width = "calc(100% - 78px)";
+          } else {
+              contentSection.style.marginLeft = "260px";
+              contentSection.style.width = "calc(100% - 260px)";
+          }
+  
+          // Toggle classes para o header caso seja necessário
+          if (header) {
+              header.classList.toggle("pc-header-close");
+          }
+      });
+  
+      // Evento para expandir e recolher sub-menus
+      const arrows = document.querySelectorAll(".arrow");
+      arrows.forEach(arrow => {
+          arrow.addEventListener("click", (e) => {
+              const arrowParent = e.target.parentElement.parentElement; // Seleciona o elemento pai do menu
+              arrowParent.classList.toggle("showMenu");
+          });
+      });
+    </script>
 </body>
 </html>

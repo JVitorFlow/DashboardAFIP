@@ -86,7 +86,7 @@
                             <tr>
                                 <th class="border-bottom" scope="col">Id</th>
                                 <th class="border-bottom" scope="col">Processo</th>
-                                <th class="border-bottom" scope="col">Robô</th>
+                                <th class="border-bottom" scope="col">Usuário</th>
                                 <th class="border-bottom" scope="col">Data de criação</th>
                                 <th class="border-bottom" scope="col">Data de início</th>
                                 <th class="border-bottom" scope="col">Data de término</th>
@@ -110,7 +110,7 @@
                                 <td>{{ task.started_at|date:"d/m/Y H:i" }}</td>
                                 <td>{{ task.ended_at|date:"d/m/Y H:i" }}</td>
                                 <td class="fw-bolder {% if task.status == 'CREATED' %}text-info{% elif task.status == 'STARTED' %}text-warning{% elif task.status == 'COMPLETED' %}text-success{% elif task.status == 'ERROR' %}text-danger{% endif %}">{{ task.status }}</td>
-                                <td><a class="btn btn-sm btn-primary" href="{% url 'items' task.id %}">Ver itens</a></td>
+                                <td><a class="btn btn-sm btn-primary" href="{% url 'items' task.id|safe %}">Ver itens</a></td>
                             </tr>
                             {% endfor %}
                         </tbody>

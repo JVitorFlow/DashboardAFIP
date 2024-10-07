@@ -1,0 +1,10 @@
+.content-section {
+    transition: all 0.5s ease;
+    margin-left: 260px; /* Largura da sidebar quando aberta */
+    width: calc(100% - 260px);
+}
+
+.sidebar.close ~ .content-section {
+    margin-left: 78px; /* Largura da sidebar quando fechada */
+    width: calc(100% - 78px);
+}

@@ -1,11 +1,25 @@
-from rest_framework.serializers import ModelSerializer
+from rest_framework import serializers
 from .models import Item
-from apps.values.serializer import ValueSerializer
+from apps.tasks.models import Task
 
 
-class ItemSerializer(ModelSerializer):
-    value = ValueSerializer()  # Serializador de Value anidado
+class TaskSummarySerializer(serializers.ModelSerializer):
+    """
+    Serializador resumido para a Tarefa.
+    """
+    class Meta:
+        model = Task
+        fields = ['id', 'created_at', 'status', 'robot_id']
+
+
+class ItemSerializer(serializers.ModelSerializer):
+    """
+    Serializador para os Itens, incluindo os campos de OS e nome.
+    """
 
     class Meta:
         model = Item
-        fields = '__all__'
+        fields = [
+            'id', 'os_number', 'os_name', 'created_at',
+            'started_at', 'ended_at', 'status'
+        ]
