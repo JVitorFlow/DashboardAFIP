@@ -26,6 +26,9 @@
                 <th class="border-gray-200">Estado</th>
                 <th class="border-gray-200">O.S.</th>
                 <th class="border-gray-200">Nome da Pessoa</th>
+                <th class="border-gray-200">Resultado Shift</th>
+                <th class="border-gray-200">Resultado Sismama</th>
+                <th class="border-gray-200">Etapa Atual</th>
                 <th class="border-gray-200">Ação</th>
             </tr>
         </thead>
@@ -47,10 +50,17 @@
                 <td>
                     <span class="badge {% if item.status == 'CREATED' %} bg-primary {% elif item.status == 'STARTED' %} bg-warning {% elif item.status == 'COMPLETED' %} bg-success {% elif item.status == 'ERROR' %} bg-danger {% endif %}">
                         {{ item.status }}
-                      </span>                      
+                    </span>                      
                 </td>
                 <td><span class="fw-bold text-info">{{ item.os_number }}</span></td>
-                <td><span class="fw-bold text-info">{{ item.os_name }}</span></td>
+                <td><span class="fw-bold text-info">{{ item.os_name|default:"-" }}</span></td>
+                <td><span class="fw-normal">{{ item.shift_result|default:"-" }}</span></td>
+                <td><span class="fw-normal">{{ item.sismama_result|default:"-" }}</span></td>
+                <td>
+                    <span class="badge {% if item.stage == 'PENDING' %} bg-secondary {% elif item.stage == 'SHIFT_COMPLETED' %} bg-info {% elif item.stage == 'SISMAMA_COMPLETED' %} bg-success {% endif %}">
+                        {{ item.stage }}
+                    </span>
+                </td>
                 <td>{% include 'includes/modal_default.html' %}</td>
             </tr>
             {% endfor %}

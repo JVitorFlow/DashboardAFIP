@@ -21,5 +21,6 @@ class ItemSerializer(serializers.ModelSerializer):
         model = Item
         fields = [
             'id', 'os_number', 'os_name', 'created_at',
-            'started_at', 'ended_at', 'status'
+            'started_at', 'ended_at', 'status',
+            'shift_result', 'sismama_result', 'stage'
         ]

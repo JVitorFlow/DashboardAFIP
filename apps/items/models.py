@@ -41,6 +41,8 @@ class Item(models.Model):
         choices=Status.choices,
         default=Status.CREATED
     )
-
+    shift_result = models.TextField(null=True, blank=True)
+    sismama_result = models.TextField(null=True, blank=True)
+    stage = models.CharField(max_length=50, default='PENDING')
     def __str__(self) -> str:
         return f"{self.os_number} - {self.os_name or 'Sem nome'}"
