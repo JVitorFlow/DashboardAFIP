@@ -1,7 +1,7 @@
 import csv
 from .models import Task
 from apps.items.models import Item
-from apps.values.models import Value
+from apps.values.models import ShiftData
 from apps.robots.utils import get_min_robot
 
 

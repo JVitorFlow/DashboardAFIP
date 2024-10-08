@@ -1,8 +1,8 @@
-from rest_framework.serializers import ModelSerializer
-from .models import Value
+from rest_framework import serializers
+from .models import ShiftData
 
 
-class ValueSerializer(ModelSerializer):
+class ShiftDataSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Value
+        model = ShiftData
         fields = '__all__'

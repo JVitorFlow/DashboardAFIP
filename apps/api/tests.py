@@ -5,7 +5,7 @@ from apps.robots.models import Robot
 from apps.processes.models import Process
 from apps.tasks.models import Task
 from apps.items.models import Item
-from apps.values.models import Value
+from apps.values.models import ShiftData
 from apps.utils.choices import StatusRobot
 
 # Create your tests here.
@@ -24,4 +24,4 @@ def setUp_Test_Case(self):
     self.task = Task.objects.create(
         user_id=self.user, process_id=self.process, robot_id=self.robot)
     self.item = Item.objects.create(task_id=self.task)
-    self.value = Value.objects.create(item_id=self.item, value_number=10)
+    self.value = ShiftData.objects.create(item_id=self.item, value_number=10)

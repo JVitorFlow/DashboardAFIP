@@ -18,6 +18,7 @@ from apps.api.utils import check_id, check_if_can_change_status
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework.exceptions import NotFound
+from apps.values.models import ShiftData
 
 class ItemViewSet(viewsets.ModelViewSet):
     """
@@ -173,18 +174,6 @@ class ItemListView(LoginRequiredMixin, ListView):
     template_name = 'home/items.html'
 
     def dispatch(self, request, *args: Any, **kwargs: Any):
-        """
-        Verifies if the user has permissions to access the view.
-
-        Parameters:
-        - request (HttpRequest): The incoming HTTP request.
-        - args: Positional arguments.
-        - kwargs: Keyword arguments.
-
-        Returns:
-        HttpResponse: HTTP response that redirects to the tasks page
-        or allows access to the view.
-        """
         task_id = self.kwargs['task_id']
         self.task = get_object_or_404(Task, id=task_id)
         if request.user != self.task.user_id:
@@ -193,20 +182,17 @@ class ItemListView(LoginRequiredMixin, ListView):
 
     def get_queryset(self) -> QuerySet[Any]:
         """
-    Obtains the set of items associated with the task.
-
-    Returns:
-    QuerySet: Set of items filtered by the task and sorted by ID
-    in descending order.
-    """
-        return Item.objects.filter(task_id=self.task).order_by("-id")
+        Obtains the set of items associated with the task.
+        Also fetches the associated ShiftData.
+        """
+        queryset = Item.objects.filter(task_id=self.task).order_by("-id")
+        # Pré-carregar os dados de ShiftData para otimizar consultas
+        queryset = queryset.prefetch_related('shift_data')
+        return queryset
 
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
         """
-        Obtains the context data for the template.
-
-        Returns:
-        dict: Dictionary containing the context data.
+        Provides the context for the template, including task and items data.
         """
         context = super().get_context_data(**kwargs)
         context['task'] = self.task

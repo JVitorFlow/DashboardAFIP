@@ -57,10 +57,16 @@
                 <td><span class="fw-normal">{{ item.shift_result|default:"-" }}</span></td>
                 <td><span class="fw-normal">{{ item.sismama_result|default:"-" }}</span></td>
                 <td>
-                    <span class="badge {% if item.stage == 'PENDING' %} bg-secondary {% elif item.stage == 'SHIFT_COMPLETED' %} bg-info {% elif item.stage == 'SISMAMA_COMPLETED' %} bg-success {% endif %}">
+                    <span class="badge
+                        {% if item.stage == 'PENDING' %} bg-secondary
+                        {% elif item.stage == 'SHIFT_COMPLETED' %} bg-info
+                        {% elif item.stage == 'SISMAMA_COMPLETED' %} bg-success
+                        {% elif item.stage == 'IN PROCESSING' %} bg-warning  <!-- Adicionando a classe para EXECUTING -->
+                        {% endif %}">
                         {{ item.stage }}
                     </span>
                 </td>
+                
                 <td>{% include 'includes/modal_default.html' %}</td>
             </tr>
             {% endfor %}

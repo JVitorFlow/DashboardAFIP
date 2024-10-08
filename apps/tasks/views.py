@@ -62,6 +62,39 @@ class TaskViewSet(viewsets.ViewSet):
         serializer = TaskSerializer(tasks_with_items, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+    @swagger_auto_schema(
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                'status': openapi.Schema(type=openapi.TYPE_STRING, description='Novo status da tarefa'),
+                'started_at': openapi.Schema(type=openapi.TYPE_STRING, format='date-time', description='Data e hora de início da tarefa'),
+                'ended_at': openapi.Schema(type=openapi.TYPE_STRING, format='date-time', description='Data e hora de finalização da tarefa'),
+                'shift_result': openapi.Schema(type=openapi.TYPE_STRING, description='Resultado da etapa Shift'),
+                'sismama_result': openapi.Schema(type=openapi.TYPE_STRING, description='Resultado da etapa Sismama'),
+                'stage': openapi.Schema(type=openapi.TYPE_STRING, description='Etapa atual da tarefa'),
+            },
+            required=['status'],  # Defina quais campos são obrigatórios, neste caso apenas 'status'
+        ),
+        responses={200: TaskSerializer()},
+        operation_description="Atualizar uma tarefa específica, incluindo status, horários, resultados e estágio.",
+        operation_summary="Atualizar Tarefa",
+    )
+    @action(detail=True, methods=['patch'], url_path='update-task')
+    def update_task_status(self, request, pk=None):
+        """
+        Atualiza uma tarefa específica.
+        """
+        try:
+            task = Task.objects.get(pk=pk)
+        except Task.DoesNotExist:
+            raise NotFound(detail="Tarefa não encontrada.")
+
+        serializer = TaskSerializer(instance=task, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class DashboardListView(LoginRequiredMixin, ListView):
     """

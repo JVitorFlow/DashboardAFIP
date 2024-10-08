@@ -1,45 +1,106 @@
-<!-- Button Modal -->
+<!-- Button to trigger the modal -->
 <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#modal-{{ item.id }}">
-    Ver valores</button>
-{% for item in object_list %}
+    Ver valores
+</button>
+
 <!-- Modal Content -->
-<div class="modal fade" id="modal-{{ item.id }}" tabindex="-1" role="dialog" aria-labelledby="modal-{{ item.id }}"
-    aria-hidden="true">
+<div class="modal fade" id="modal-{{ item.id }}" tabindex="-1" role="dialog" aria-labelledby="modal-{{ item.id }}" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 class="h6 modal-title">Item: {{item.id}}</h2>
+                <h2 class="h6 modal-title">Item: {{ item.id }}</h2>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                {% if item.value %}
-                <div class="col-lg-12 col-sm-6">
-                    <div class="mb-3">
-                        <label for="disabledTextInput">Valor númerico</label>
-                        <input type="number" id="disabledTextInput" class="form-control"
-                            placeholder="{{ item.value.value_number }}" disabled>
+                {% if item.shift_data.first %}
+                    <!-- Se existir shift_data para o item, exibe os dados -->
+                    <div class="col-lg-12 col-sm-6">
+                        <div class="mb-3">
+                            <label for="disabledTextInput">CNES</label>
+                            <input type="text" id="disabledTextInput" class="form-control" value="{{ item.shift_data.first.cnes }}" disabled>
+                        </div>
+                        <div class="mb-3">
+                            <label for="disabledTextInput">O.S. Número</label>
+                            <input type="text" id="disabledTextInput" class="form-control" value="{{ item.shift_data.first.os_number }}" disabled>
+                        </div>
+                        <div class="mb-3">
+                            <label for="disabledTextInput">Cartão SUS</label>
+                            <input type="text" id="disabledTextInput" class="form-control" value="{{ item.shift_data.first.cartao_sus }}" disabled>
+                        </div>
+                        <div class="mb-3">
+                            <label for="disabledTextInput">Nome do Paciente</label>
+                            <input type="text" id="disabledTextInput" class="form-control" value="{{ item.shift_data.first.nome_paciente }}" disabled>
+                        </div>
+                        <div class="mb-3">
+                            <label for="disabledTextInput">Sexo</label>
+                            <input type="text" id="disabledTextInput" class="form-control" value="{{ item.shift_data.first.sexo }}" disabled>
+                        </div>
+                        <div class="mb-3">
+                            <label for="disabledTextInput">Raça / Etnia</label>
+                            <input type="text" id="disabledTextInput" class="form-control" value="{{ item.shift_data.first.raca_etinia }}" disabled>
+                        </div>
+                        <div class="mb-3">
+                            <label for="disabledTextInput">Idade do Paciente</label>
+                            <input type="number" id="disabledTextInput" class="form-control" value="{{ item.shift_data.first.idade_paciente }}" disabled>
+                        </div>
+                        <div class="mb-3">
+                            <label for="disabledTextInput">Data de Nascimento</label>
+                            <input type="text" id="disabledTextInput" class="form-control" value="{{ item.shift_data.first.data_nascimento }}" disabled>
+                        </div>
+                        <div class="mb-3">
+                            <label for="disabledTextInput">Data de Coleta</label>
+                            <input type="text" id="disabledTextInput" class="form-control" value="{{ item.shift_data.first.data_coleta }}" disabled>
+                        </div>
+                        <div class="mb-3">
+                            <label for="disabledTextInput">Data de Liberação</label>
+                            <input type="text" id="disabledTextInput" class="form-control" value="{{ item.shift_data.first.data_liberacao }}" disabled>
+                        </div>
+                        <div class="mb-3">
+                            <label for="disabledTextInput">Tamanho da Lesão</label>
+                            <input type="text" id="disabledTextInput" class="form-control" value="{{ item.shift_data.first.tamanho_lesao }}" disabled>
+                        </div>
+                        <div class="mb-3">
+                            <label for="disabledTextInput">Característica da Lesão</label>
+                            <input type="text" id="disabledTextInput" class="form-control" value="{{ item.shift_data.first.caracteristica_lesao }}" disabled>
+                        </div>
+                        <div class="mb-3">
+                            <label for="disabledTextInput">Localização da Lesão</label>
+                            <input type="text" id="disabledTextInput" class="form-control" value="{{ item.shift_data.first.localizacao_lesao }}" disabled>
+                        </div>
+                        <div class="mb-3">
+                            <label for="disabledTextInput">Código Postal</label>
+                            <input type="text" id="disabledTextInput" class="form-control" value="{{ item.shift_data.first.codigo_postal }}" disabled>
+                        </div>
+                        <div class="mb-3">
+                            <label for="disabledTextInput">Logradouro</label>
+                            <input type="text" id="disabledTextInput" class="form-control" value="{{ item.shift_data.first.logradouro }}" disabled>
+                        </div>
+                        <div class="mb-3">
+                            <label for="disabledTextInput">Número Residencial</label>
+                            <input type="text" id="disabledTextInput" class="form-control" value="{{ item.shift_data.first.numero_residencial }}" disabled>
+                        </div>
+                        <div class="mb-3">
+                            <label for="disabledTextInput">Cidade</label>
+                            <input type="text" id="disabledTextInput" class="form-control" value="{{ item.shift_data.first.cidade }}" disabled>
+                        </div>
+                        <div class="mb-3">
+                            <label for="disabledTextInput">Estado</label>
+                            <input type="text" id="disabledTextInput" class="form-control" value="{{ item.shift_data.first.estado }}" disabled>
+                        </div>
                     </div>
-                    <div class="mb-3">
-                        <label for="disabledTextInput">Valor texto</label>
-                        <textarea class="form-control" placeholder="{{ item.value.value_text }}" id="textarea" rows="4"
-                            disabled></textarea>
-                    </div>
-                    {% else %}
+                {% else %}
+                    <!-- Se não houver shift_data, exibe uma mensagem -->
                     <div class="col-lg-12 col-sm-6">
                         <div class="mb-1">
                             <label>O item: {{item.id}}</label>
-                            <label>Não há valores criados</label>
+                            <p>Não há valores criados.</p>
                         </div>
                     </div>
-                    {% endif %}
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-link text-gray-600 ms-auto"
-                        data-bs-dismiss="modal">Fechar</button>
-                </div>
+                {% endif %}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-link text-gray-600 ms-auto" data-bs-dismiss="modal">Fechar</button>
             </div>
         </div>
     </div>
-</div>    
-{% endfor %}
-<!-- End of Modal Content -->
+</div>
