@@ -5,6 +5,14 @@ from apps.utils.choices import Status
 
 
 class Item(models.Model):
+    # Etapas do processamento
+    STAGE_CHOICES = [
+        ('SHIFT', 'Shift Process'),          # Etapa de Shift
+        ('IMAGE_PROCESS', 'Image Process'),  # Etapa de processamento de imagem
+        ('SISMAMA', 'Sismama Process'),      # Etapa de Sismama
+        ('COMPLETED', 'Completed')           # Finalizado
+    ]
+    # Referência para a task
     task_id = models.ForeignKey(
         to=Task,
         null=False,
@@ -12,6 +20,8 @@ class Item(models.Model):
         on_delete=models.CASCADE,
         db_index=True
     )
+
+    # Referência para o robô
     robot_id = models.ForeignKey(
         to=Robot,
         null=True,
@@ -19,6 +29,8 @@ class Item(models.Model):
         on_delete=models.CASCADE,
         db_index=True
     )
+
+    # Informações da Ordem de Serviço
     os_number = models.CharField(
         max_length=50,
         null=False,
@@ -31,9 +43,8 @@ class Item(models.Model):
         blank=True,
         help_text="Nome associado à Ordem de Serviço"
     )
-    created_at = models.DateTimeField(auto_now_add=True)
-    started_at = models.DateTimeField(null=True, blank=True)
-    ended_at = models.DateTimeField(null=True, blank=True)
+
+    # Status do item
     status = models.CharField(
         null=False,
         blank=False,
@@ -41,8 +52,24 @@ class Item(models.Model):
         choices=Status.choices,
         default=Status.CREATED
     )
+
+    # Datas de criação e execução
+    created_at = models.DateTimeField(auto_now_add=True)
+    started_at = models.DateTimeField(null=True, blank=True)
+    ended_at = models.DateTimeField(null=True, blank=True)
+
+    # Resultados das etapas
     shift_result = models.TextField(null=True, blank=True)
+    image_result = models.JSONField(null=True, blank=True)
     sismama_result = models.TextField(null=True, blank=True)
-    stage = models.CharField(max_length=50, default='PENDING')
+
+    # Etapa atual do processamento
+    stage = models.CharField(
+        max_length=50,
+        choices=STAGE_CHOICES,
+        default='SHIFT',  # Começa na etapa de SHIFT
+        help_text="Etapa atual do processamento do item"
+    )
+
     def __str__(self) -> str:
         return f"{self.os_number} - {self.os_name or 'Sem nome'}"

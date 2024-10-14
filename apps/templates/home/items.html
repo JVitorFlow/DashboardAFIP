@@ -1,12 +1,15 @@
 {% extends "layouts/base.html" %}
 
+{% load static %}
+
 {% block title %}Itens{% endblock %}
 
 <!-- Specific Page CSS goes HERE  -->
-{% block stylesheets %}{% endblock stylesheets %}
+{% block stylesheets %}
+{% endblock stylesheets %}
+<link rel="stylesheet" href="{% static 'assets/css/items.css' %}">
 
 {% block content %}
-
 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center py-2" style="padding-left: 20px;">
     <div class="d-block mb-2 mb-md-0">
         <h2 class="h4">Itens da Tarefa ID: {{ task.id }}</h2>
@@ -29,28 +32,30 @@
                 <th class="border-gray-200">Resultado Shift</th>
                 <th class="border-gray-200">Resultado Sismama</th>
                 <th class="border-gray-200">Etapa Atual</th>
-                <th class="border-gray-200">Ação</th>
+                <th class="border-gray-200">Detalhes da Imagem</th>
+                <th class="border-gray-200">Detalhes SHIFT</th>
             </tr>
         </thead>
         <tbody>
-            <!-- Item -->
             {% for item in object_list %}
             <tr>
-                <td> <span class="fw-extrabold">{{ item.id }}</span></td>
-                <td><span class="fw-normal">
-                    {% if not item.robot_id %}
-                    Não Atribuído
-                    {% else %}
-                    {{ item.robot_id.user_id.username }}
-                    {% endif %}
-                </span></td>
+                <td><span class="fw-extrabold">{{ item.id }}</span></td>
+                <td>
+                    <span class="fw-normal">
+                        {% if not item.robot_id %}
+                            Não Atribuído
+                        {% else %}
+                            {{ item.robot_id.user_id.username }}
+                        {% endif %}
+                    </span>
+                </td>
                 <td><span class="fw-bold text-primary">{{ item.created_at|date:"d/m/Y" }} {{ item.created_at|time:"H:i" }}</span></td>
                 <td><span class="fw-bold text-info">{{ item.started_at|date:"d/m/Y" }} {{ item.started_at|time:"H:i" }}</span></td>
                 <td><span class="fw-bold text-success">{{ item.ended_at|date:"d/m/Y" }} {{ item.ended_at|time:"H:i" }}</span></td>
                 <td>
                     <span class="badge {% if item.status == 'CREATED' %} bg-primary {% elif item.status == 'STARTED' %} bg-warning {% elif item.status == 'COMPLETED' %} bg-success {% elif item.status == 'ERROR' %} bg-danger {% endif %}">
                         {{ item.status }}
-                    </span>                      
+                    </span>
                 </td>
                 <td><span class="fw-bold text-info">{{ item.os_number }}</span></td>
                 <td><span class="fw-bold text-info">{{ item.os_name|default:"-" }}</span></td>
@@ -59,14 +64,29 @@
                 <td>
                     <span class="badge
                         {% if item.stage == 'PENDING' %} bg-secondary
-                        {% elif item.stage == 'SHIFT_COMPLETED' %} bg-info
-                        {% elif item.stage == 'SISMAMA_COMPLETED' %} bg-success
-                        {% elif item.stage == 'IN PROCESSING' %} bg-warning  <!-- Adicionando a classe para EXECUTING -->
+                        {% elif item.stage == 'SHIFT' %} bg-info
+                        {% elif item.stage == 'IMAGE_PROCESS' %} bg-warning
+                        {% elif item.stage == 'SISMAMA' %} bg-primary
+                        {% elif item.stage == 'COMPLETED' %} bg-success
                         {% endif %}">
                         {{ item.stage }}
                     </span>
                 </td>
-                
+
+                <!-- Coluna: Detalhes do Image Result -->
+                <td>
+                    {% if item.image_result %}
+                        <button class="btn btn-sm btn-outline-info" data-bs-toggle="modal" data-bs-target="#imageModal{{ item.id }}">
+                            <i class="fas fa-eye"></i> Ver Detalhes
+                        </button>
+
+                        <!-- Incluir o modal separado -->
+                        {% include 'includes/modal_image_result.html' %}
+                    {% else %}
+                        <span class="text-muted">Sem Resultados</span>
+                    {% endif %}
+                </td>
+
                 <td>{% include 'includes/modal_default.html' %}</td>
             </tr>
             {% endfor %}
@@ -77,4 +97,5 @@
 {% endblock content %}
 
 <!-- Specific Page JS goes HERE  -->
-{% block javascripts %}{% endblock javascripts %}
+{% block javascripts %}
+{% endblock javascripts %}

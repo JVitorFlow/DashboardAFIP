@@ -1,0 +1,34 @@
+/* Melhorar a aparência da tabela de resultados */
+.modal-lg {
+    max-width: 80%;
+}
+
+.table-bordered {
+    border: 1px solid #dee2e6;
+    border-radius: 5px;
+}
+
+.table th, .table td {
+    padding: 12px;
+    vertical-align: middle;
+}
+
+.table th {
+    background-color: #f8f9fa;
+    font-weight: bold;
+    text-align: left;
+}
+
+.table-sm td, .table-sm th {
+    padding: 8px;
+}
+
+.modal-body {
+    background-color: #f9f9f9;
+    padding: 20px;
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+}

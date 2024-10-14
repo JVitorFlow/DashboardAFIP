@@ -89,27 +89,35 @@ class ItemViewSet(viewsets.ModelViewSet):
         return super().destroy(request, *args, **kwargs)
 
     @swagger_auto_schema(
-        operation_description="Listar todos os itens pendentes com status 'CREATED'.",
-        operation_summary="Listar Itens Pendentes"
+        operation_description="Listar todos os itens em uma etapa específica (SHIFT, IMAGE_PROCESS, SISMAMA).",
+        operation_summary="Listar Itens por Etapa",
+        manual_parameters=[
+            openapi.Parameter("stage", openapi.IN_QUERY, description="Etapa do processamento (SHIFT, IMAGE_PROCESS, SISMAMA).", type=openapi.TYPE_STRING)
+        ]
     )
-    @action(detail=False, methods=['get'], url_path='pending')
-    def list_pending(self, request):
+    @action(detail=False, methods=['get'], url_path='by-stage')
+    def list_by_stage(self, request):
         """
-        Lista todos os itens pendentes que precisam ser processados pelo RPA.
-        """
-        # Filtra apenas os itens com status "CREATED"
-        pending_items = Item.objects.filter(status="CREATED")
+        Lista todos os itens em uma etapa específica para processamento pelo robô.
 
-        # Caso não existam itens pendentes, retorna uma resposta clara
-        if not pending_items.exists():
+        Parâmetros:
+        - stage (str): Etapa do processamento.
+        """
+        stage = request.query_params.get('stage')
+        if stage not in ['SHIFT', 'IMAGE_PROCESS', 'SISMAMA']:
+            return Response({'detail': 'Etapa inválida. Use SHIFT, IMAGE_PROCESS ou SISMAMA.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        items_in_stage = Item.objects.filter(stage=stage)
+
+        if not items_in_stage.exists():
             return Response(
-                {"detail": "Nenhum item pendente encontrado."},
+                {"detail": f"Nenhum item encontrado na etapa {stage}."},
                 status=status.HTTP_200_OK
             )
-                
+
         # Organiza os itens por tarefa usando um dicionário
         tasks_dict = defaultdict(list)
-        for item in pending_items:
+        for item in items_in_stage:
             tasks_dict[item.task_id].append(item)
 
         response_data = []
@@ -122,11 +130,12 @@ class ItemViewSet(viewsets.ModelViewSet):
         return Response(response_data, status=status.HTTP_200_OK)
 
     @swagger_auto_schema(
-        operation_description="Atualizar o status de um item pelo seu ID e pelo `robot_id` associado.",
-        operation_summary="Atualizar Status do Item",
+        operation_description="Atualizar o status e a etapa de um item pelo seu ID e pelo `robot_id` associado.",
+        operation_summary="Atualizar Status e Etapa do Item",
         manual_parameters=[
             openapi.Parameter("robot_id", openapi.IN_QUERY, description="ID do robô.", type=openapi.TYPE_INTEGER),
             openapi.Parameter("status", openapi.IN_QUERY, description="Novo status do item.", type=openapi.TYPE_STRING),
+            openapi.Parameter("stage", openapi.IN_QUERY, description="Nova etapa do item (SHIFT, IMAGE_PROCESS, SISMAMA, COMPLETED).", type=openapi.TYPE_STRING),
             openapi.Parameter("item__started_at", openapi.IN_QUERY, description="Data e hora de início (formato: AAAA-MM-DD HH:MM:SS).", type=openapi.TYPE_STRING),
             openapi.Parameter("item__ended_at", openapi.IN_QUERY, description="Data e hora de término (formato: AAAA-MM-DD HH:MM:SS).", type=openapi.TYPE_STRING),
         ]
@@ -134,20 +143,21 @@ class ItemViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['patch'], url_path='update-status')
     def update_status(self, request, pk=None):
         """
-        Edita o estado de um item pelo seu ID e o `robot_id` associado.
+        Edita o estado e a etapa de um item pelo seu ID e o `robot_id` associado.
 
         Parâmetros:
         - robot_id (int): ID do robô associado ao item.
         - status (str): Novo status do item.
+        - stage (str): Nova etapa do item.
 
         Retorna:
         - Response: Resposta HTTP com o resultado da operação.
         """
         robot_id = request.data.get('robot_id')
-        if not robot_id:
-            return Response({'detail': 'robot_id ausente ou inválido.'}, status=status.HTTP_400_BAD_REQUEST)
+        stage = request.data.get('stage')
 
-        check_id(robot_id, pk)
+        if not robot_id or stage not in ['SHIFT', 'IMAGE_PROCESS', 'SISMAMA', 'COMPLETED']:
+            return Response({'detail': 'robot_id ausente ou etapa inválida.'}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
             robot = Robot.objects.get(id=robot_id)
@@ -155,10 +165,7 @@ class ItemViewSet(viewsets.ModelViewSet):
         except (Robot.DoesNotExist, Item.DoesNotExist):
             raise NotFound(detail="Robô ou item não encontrado.")
 
-        # Verifica se pode alterar o status do item
-        check_if_can_change_status(item)
-
-        # Serializa e atualiza os dados
+        # Atualiza o status e a etapa do item
         serializer = ItemSerializer(instance=item, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
