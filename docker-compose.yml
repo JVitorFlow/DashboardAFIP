@@ -4,11 +4,12 @@ services:
   db:
     image: postgres:13
     environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: wtime
+      POSTGRES_PASSWORD: wtimepassword
+      POSTGRES_DB: sgautomacao
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    restart: always  # Reinicia automaticamente se falhar
     networks:
       - orchestrator_network
 
@@ -25,6 +26,8 @@ services:
     command: gunicorn apps.core.wsgi:application --bind 0.0.0.0:8000
     volumes:
       - .:/apps
+    env_file:
+      - .env
     environment:
       - PYTHONPATH=/apps
       - POSTGRES_DB=${POSTGRES_DB}
@@ -32,9 +35,14 @@ services:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - DATABASE_URL=${DATABASE_URL}
       - CELERY_BROKER_URL=${CELERY_BROKER_URL}
+      - CREATE_SUPERUSER=true # Sinaliza para o entrypoint criar o superusuário
+      - DJANGO_SUPERUSER_USERNAME=${DJANGO_SUPERUSER_USERNAME}
+      - DJANGO_SUPERUSER_EMAIL=${DJANGO_SUPERUSER_EMAIL}
+      - DJANGO_SUPERUSER_PASSWORD=${DJANGO_SUPERUSER_PASSWORD}
     depends_on:
       - db
       - rabbitmq
+    restart: always
     networks:
       - orchestrator_network
 
@@ -85,8 +93,49 @@ services:
     networks:
       - orchestrator_network
 
+  ngrok:
+    image: ngrok/ngrok:latest
+    restart: unless-stopped
+    command: http nginx:80
+    environment:
+      - NGROK_AUTHTOKEN=${NGROK_AUTHTOKEN}
+    volumes:
+      - ./ngrok.yml:/etc/ngrok.yml  # Mapeando o arquivo ngrok.yml
+    ports:
+      - "4040:4040"
+    depends_on:
+      - django
+    networks:
+      - orchestrator_network
+
+
+  pgadmin:
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PG_ADMIN_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PG_ADMIN_PASSWORD}
+    ports:
+      - "5050:80"
+    depends_on:
+      - db
+    networks:
+      - orchestrator_network
+
+  portainer:
+    image: portainer/portainer-ce
+    command: -H unix:///var/run/docker.sock
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer_data:/data
+    ports:
+      - "9000:9000"
+    networks:
+      - orchestrator_network
+
+
 volumes:
   postgres_data:
+  portainer_data:
 
 networks:
   orchestrator_network:
