@@ -6,8 +6,8 @@
 
 <!-- Specific Page CSS goes HERE  -->
 {% block stylesheets %}
+    <link rel="stylesheet" href="{% static 'assets/css/items.css' %}">
 {% endblock stylesheets %}
-<link rel="stylesheet" href="{% static 'assets/css/items.css' %}">
 
 {% block content %}
 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center py-2" style="padding-left: 20px;">
@@ -27,11 +27,12 @@
                 <th class="border-gray-200">Data de Início</th>
                 <th class="border-gray-200">Data de Fim</th>
                 <th class="border-gray-200">Estado</th>
+                <th class="border-gray-200">Etapa Atual</th>
                 <th class="border-gray-200">O.S.</th>
                 <th class="border-gray-200">Nome da Pessoa</th>
                 <th class="border-gray-200">Resultado Shift</th>
                 <th class="border-gray-200">Resultado Sismama</th>
-                <th class="border-gray-200">Etapa Atual</th>
+                <th class="border-gray-200">Autorizar Execução</th>
                 <th class="border-gray-200">Detalhes da Imagem</th>
                 <th class="border-gray-200">Detalhes SHIFT</th>
             </tr>
@@ -57,10 +58,6 @@
                         {{ item.status }}
                     </span>
                 </td>
-                <td><span class="fw-bold text-info">{{ item.os_number }}</span></td>
-                <td><span class="fw-bold text-info">{{ item.os_name|default:"-" }}</span></td>
-                <td><span class="fw-normal">{{ item.shift_result|default:"-" }}</span></td>
-                <td><span class="fw-normal">{{ item.sismama_result|default:"-" }}</span></td>
                 <td>
                     <span class="badge
                         {% if item.stage == 'PENDING' %} bg-secondary
@@ -72,30 +69,46 @@
                         {{ item.stage }}
                     </span>
                 </td>
-
+                <td><span class="fw-bold text-info">{{ item.os_number }}</span></td>
+                <td><span class="fw-bold text-info">{{ item.os_name|default:"-" }}</span></td>
+                <td><span class="fw-normal">{{ item.shift_result|default:"-" }}</span></td>
+                <td><span class="fw-normal">{{ item.sismama_result|default:"-" }}</span></td>
+                <td>
+                    {% if item.stage == 'SISMAMA' %}
+                        {% if item.is_authorized %}
+                            <button id="authorize-button-{{ item.id }}" class="btn btn-sm btn-success" disabled>
+                                Autorizado
+                            </button>
+                        {% else %}
+                            <button id="authorize-button-{{ item.id }}" class="btn btn-sm btn-outline-success" onclick="authorizeExecution('{{ item.id }}')">
+                                Autorizar
+                            </button>
+                        {% endif %}
+                    {% else %}
+                        <span class="text-muted">-</span>
+                    {% endif %}
+                </td>                                               
                 <!-- Coluna: Detalhes do Image Result -->
                 <td>
                     {% if item.image_result %}
                         <button class="btn btn-sm btn-outline-info" data-bs-toggle="modal" data-bs-target="#imageModal{{ item.id }}">
                             <i class="fas fa-eye"></i> Ver Detalhes
                         </button>
-
-                        <!-- Incluir o modal separado -->
                         {% include 'includes/modal_image_result.html' %}
                     {% else %}
                         <span class="text-muted">Sem Resultados</span>
                     {% endif %}
                 </td>
-
                 <td>{% include 'includes/modal_default.html' %}</td>
             </tr>
             {% endfor %}
         </tbody>
-    </table>
+    </table>    
 </div>
 
 {% endblock content %}
 
 <!-- Specific Page JS goes HERE  -->
 {% block javascripts %}
+    <script src="{% static 'assets/js/items.js' %}" defer></script>
 {% endblock javascripts %}

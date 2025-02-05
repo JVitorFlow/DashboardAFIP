@@ -3,104 +3,107 @@
     Ver valores
 </button>
 
-<!-- Modal Content -->
+<!-- Modal Content with Form -->
 <div class="modal fade" id="modal-{{ item.id }}" tabindex="-1" role="dialog" aria-labelledby="modal-{{ item.id }}" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
-            <div class="modal-header">
-                <h2 class="h6 modal-title">Item: {{ item.id }}</h2>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                {% if item.shift_data.first %}
-                    <!-- Se existir shift_data para o item, exibe os dados -->
-                    <div class="col-lg-12 col-sm-6">
-                        <div class="mb-3">
-                            <label for="disabledTextInput">CNES</label>
-                            <input type="text" id="disabledTextInput" class="form-control" value="{{ item.shift_data.first.cnes }}" disabled>
+            <form method="POST" action="{% url 'item_update' item.id %}">
+                {% csrf_token %}
+                <div class="modal-header">
+                    <h2 class="h6 modal-title">Item: {{ item.id }}</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    {% if item.shift_data.first %}
+                        <!-- Se existir shift_data para o item, exibe os dados -->
+                        <div class="col-lg-12 col-sm-6">
+                            <div class="mb-3">
+                                <label for="cnes-{{ item.id }}">CNES</label>
+                                <input type="text" name="cnes" id="cnes-{{ item.id }}" class="form-control" value="{{ item.shift_data.first.cnes }}">
+                            </div>
+                            <div class="mb-3">
+                                <label for="os_number-{{ item.id }}">O.S. Número</label>
+                                <input type="text" name="os_number" id="os_number-{{ item.id }}" class="form-control" value="{{ item.shift_data.first.os_number }}">
+                            </div>
+                            <div class="mb-3">
+                                <label for="cartao_sus-{{ item.id }}">Cartão SUS</label>
+                                <input type="text" name="cartao_sus" id="cartao_sus-{{ item.id }}" class="form-control" value="{{ item.shift_data.first.cartao_sus }}">
+                            </div>
+                            <div class="mb-3">
+                                <label for="nome_paciente-{{ item.id }}">Nome do Paciente</label>
+                                <input type="text" name="nome_paciente" id="nome_paciente-{{ item.id }}" class="form-control" value="{{ item.shift_data.first.nome_paciente }}">
+                            </div>
+                            <div class="mb-3">
+                                <label for="sexo-{{ item.id }}">Sexo</label>
+                                <input type="text" name="sexo" id="sexo-{{ item.id }}" class="form-control" value="{{ item.shift_data.first.sexo }}">
+                            </div>
+                            <div class="mb-3">
+                                <label for="raca_etinia-{{ item.id }}">Raça / Etnia</label>
+                                <input type="text" name="raca_etinia" id="raca_etinia-{{ item.id }}" class="form-control" value="{{ item.shift_data.first.raca_etinia }}">
+                            </div>
+                            <div class="mb-3">
+                                <label for="idade_paciente-{{ item.id }}">Idade do Paciente</label>
+                                <input type="number" name="idade_paciente" id="idade_paciente-{{ item.id }}" class="form-control" value="{{ item.shift_data.first.idade_paciente }}">
+                            </div>
+                            <div class="mb-3">
+                                <label for="data_nascimento-{{ item.id }}">Data de Nascimento</label>
+                                <input type="text" name="data_nascimento" id="data_nascimento-{{ item.id }}" class="form-control" value="{{ item.shift_data.first.data_nascimento }}">
+                            </div>
+                            <div class="mb-3">
+                                <label for="data_coleta-{{ item.id }}">Data de Coleta</label>
+                                <input type="text" name="data_coleta" id="data_coleta-{{ item.id }}" class="form-control" value="{{ item.shift_data.first.data_coleta }}">
+                            </div>
+                            <div class="mb-3">
+                                <label for="data_liberacao-{{ item.id }}">Data de Liberação</label>
+                                <input type="text" name="data_liberacao" id="data_liberacao-{{ item.id }}" class="form-control" value="{{ item.shift_data.first.data_liberacao }}">
+                            </div>
+                            <div class="mb-3">
+                                <label for="tamanho_lesao-{{ item.id }}">Tamanho da Lesão</label>
+                                <input type="text" name="tamanho_lesao" id="tamanho_lesao-{{ item.id }}" class="form-control" value="{{ item.shift_data.first.tamanho_lesao }}">
+                            </div>
+                            <div class="mb-3">
+                                <label for="caracteristica_lesao-{{ item.id }}">Característica da Lesão</label>
+                                <input type="text" name="caracteristica_lesao" id="caracteristica_lesao-{{ item.id }}" class="form-control" value="{{ item.shift_data.first.caracteristica_lesao }}">
+                            </div>
+                            <div class="mb-3">
+                                <label for="localizacao_lesao-{{ item.id }}">Localização da Lesão</label>
+                                <input type="text" name="localizacao_lesao" id="localizacao_lesao-{{ item.id }}" class="form-control" value="{{ item.shift_data.first.localizacao_lesao }}">
+                            </div>
+                            <div class="mb-3">
+                                <label for="codigo_postal-{{ item.id }}">Código Postal</label>
+                                <input type="text" name="codigo_postal" id="codigo_postal-{{ item.id }}" class="form-control" value="{{ item.shift_data.first.codigo_postal }}">
+                            </div>
+                            <div class="mb-3">
+                                <label for="logradouro-{{ item.id }}">Logradouro</label>
+                                <input type="text" name="logradouro" id="logradouro-{{ item.id }}" class="form-control" value="{{ item.shift_data.first.logradouro }}">
+                            </div>
+                            <div class="mb-3">
+                                <label for="numero_residencial-{{ item.id }}">Número Residencial</label>
+                                <input type="text" name="numero_residencial" id="numero_residencial-{{ item.id }}" class="form-control" value="{{ item.shift_data.first.numero_residencial }}">
+                            </div>
+                            <div class="mb-3">
+                                <label for="cidade-{{ item.id }}">Cidade</label>
+                                <input type="text" name="cidade" id="cidade-{{ item.id }}" class="form-control" value="{{ item.shift_data.first.cidade }}">
+                            </div>
+                            <div class="mb-3">
+                                <label for="estado-{{ item.id }}">Estado</label>
+                                <input type="text" name="estado" id="estado-{{ item.id }}" class="form-control" value="{{ item.shift_data.first.estado }}">
+                            </div>
                         </div>
-                        <div class="mb-3">
-                            <label for="disabledTextInput">O.S. Número</label>
-                            <input type="text" id="disabledTextInput" class="form-control" value="{{ item.shift_data.first.os_number }}" disabled>
+                    {% else %}
+                        <div class="col-lg-12 col-sm-6">
+                            <div class="mb-1">
+                                <label>O item: {{ item.id }}</label>
+                                <p>Não há valores criados.</p>
+                            </div>
                         </div>
-                        <div class="mb-3">
-                            <label for="disabledTextInput">Cartão SUS</label>
-                            <input type="text" id="disabledTextInput" class="form-control" value="{{ item.shift_data.first.cartao_sus }}" disabled>
-                        </div>
-                        <div class="mb-3">
-                            <label for="disabledTextInput">Nome do Paciente</label>
-                            <input type="text" id="disabledTextInput" class="form-control" value="{{ item.shift_data.first.nome_paciente }}" disabled>
-                        </div>
-                        <div class="mb-3">
-                            <label for="disabledTextInput">Sexo</label>
-                            <input type="text" id="disabledTextInput" class="form-control" value="{{ item.shift_data.first.sexo }}" disabled>
-                        </div>
-                        <div class="mb-3">
-                            <label for="disabledTextInput">Raça / Etnia</label>
-                            <input type="text" id="disabledTextInput" class="form-control" value="{{ item.shift_data.first.raca_etinia }}" disabled>
-                        </div>
-                        <div class="mb-3">
-                            <label for="disabledTextInput">Idade do Paciente</label>
-                            <input type="number" id="disabledTextInput" class="form-control" value="{{ item.shift_data.first.idade_paciente }}" disabled>
-                        </div>
-                        <div class="mb-3">
-                            <label for="disabledTextInput">Data de Nascimento</label>
-                            <input type="text" id="disabledTextInput" class="form-control" value="{{ item.shift_data.first.data_nascimento }}" disabled>
-                        </div>
-                        <div class="mb-3">
-                            <label for="disabledTextInput">Data de Coleta</label>
-                            <input type="text" id="disabledTextInput" class="form-control" value="{{ item.shift_data.first.data_coleta }}" disabled>
-                        </div>
-                        <div class="mb-3">
-                            <label for="disabledTextInput">Data de Liberação</label>
-                            <input type="text" id="disabledTextInput" class="form-control" value="{{ item.shift_data.first.data_liberacao }}" disabled>
-                        </div>
-                        <div class="mb-3">
-                            <label for="disabledTextInput">Tamanho da Lesão</label>
-                            <input type="text" id="disabledTextInput" class="form-control" value="{{ item.shift_data.first.tamanho_lesao }}" disabled>
-                        </div>
-                        <div class="mb-3">
-                            <label for="disabledTextInput">Característica da Lesão</label>
-                            <input type="text" id="disabledTextInput" class="form-control" value="{{ item.shift_data.first.caracteristica_lesao }}" disabled>
-                        </div>
-                        <div class="mb-3">
-                            <label for="disabledTextInput">Localização da Lesão</label>
-                            <input type="text" id="disabledTextInput" class="form-control" value="{{ item.shift_data.first.localizacao_lesao }}" disabled>
-                        </div>
-                        <div class="mb-3">
-                            <label for="disabledTextInput">Código Postal</label>
-                            <input type="text" id="disabledTextInput" class="form-control" value="{{ item.shift_data.first.codigo_postal }}" disabled>
-                        </div>
-                        <div class="mb-3">
-                            <label for="disabledTextInput">Logradouro</label>
-                            <input type="text" id="disabledTextInput" class="form-control" value="{{ item.shift_data.first.logradouro }}" disabled>
-                        </div>
-                        <div class="mb-3">
-                            <label for="disabledTextInput">Número Residencial</label>
-                            <input type="text" id="disabledTextInput" class="form-control" value="{{ item.shift_data.first.numero_residencial }}" disabled>
-                        </div>
-                        <div class="mb-3">
-                            <label for="disabledTextInput">Cidade</label>
-                            <input type="text" id="disabledTextInput" class="form-control" value="{{ item.shift_data.first.cidade }}" disabled>
-                        </div>
-                        <div class="mb-3">
-                            <label for="disabledTextInput">Estado</label>
-                            <input type="text" id="disabledTextInput" class="form-control" value="{{ item.shift_data.first.estado }}" disabled>
-                        </div>
-                    </div>
-                {% else %}
-                    <!-- Se não houver shift_data, exibe uma mensagem -->
-                    <div class="col-lg-12 col-sm-6">
-                        <div class="mb-1">
-                            <label>O item: {{item.id}}</label>
-                            <p>Não há valores criados.</p>
-                        </div>
-                    </div>
-                {% endif %}
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-link text-gray-600 ms-auto" data-bs-dismiss="modal">Fechar</button>
-            </div>
+                    {% endif %}
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Salvar</button>
+                    <button type="button" class="btn btn-link text-gray-600 ms-auto" data-bs-dismiss="modal">Fechar</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
