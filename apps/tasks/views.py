@@ -16,8 +16,8 @@ from .models import Task
 from apps.robots.models import Robot
 from apps.items.models import Item
 from apps.processes.models import Process
-from apps.robots.tasks import periodic_task_check
 from rest_framework.exceptions import  NotFound
+from django_celery_beat.models import PeriodicTask
 
 
 class TaskViewSet(viewsets.ViewSet):
@@ -165,8 +165,11 @@ class DashboardListView(LoginRequiredMixin, ListView):
         
         # Se não houver robô disponível, habilita a tarefa periódica
         if not assigned_robot:
-            periodic_task_check.enabled = True
-            periodic_task_check.save()
+            task_check = PeriodicTask.objects.filter(name='check_robots_every_minute').first()
+            if task_check:
+                task_check.enabled = True
+                task_check.save()
+
 
         # Redireciona para a página de tarefas após o processamento
         return redirect('tasks')
