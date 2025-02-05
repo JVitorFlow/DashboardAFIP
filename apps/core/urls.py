@@ -4,7 +4,7 @@ from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 from .views import login_view, logout_view
 from apps.tasks.views import DashboardListView
-from apps.items.views import ItemListView
+from apps.items.views import ItemListView, ItemUpdateView
 from rest_framework import permissions
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
@@ -30,6 +30,7 @@ urlpatterns = [
     path('logout/', logout_view, name="logout"),
     path('admin/', admin.site.urls),
     path('tareas/<int:task_id>/', ItemListView.as_view(), name='items'),
+    path('items/<int:pk>/update/', ItemUpdateView.as_view(), name='item_update'),
     path('api/', include('apps.api.urls')),
 
     # URLs da documentação gerada pelo drf-yasg
