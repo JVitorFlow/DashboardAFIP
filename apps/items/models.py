@@ -60,7 +60,7 @@ class Item(models.Model):
 
     # Resultados das etapas
     shift_result = models.TextField(null=True, blank=True)
-    image_result = models.JSONField(null=True, blank=True)
+    image_result = models.TextField(null=True, blank=True)
     sismama_result = models.TextField(null=True, blank=True)
 
     # Etapa atual do processamento
@@ -70,6 +70,10 @@ class Item(models.Model):
         default='SHIFT',  # Começa na etapa de SHIFT
         help_text="Etapa atual do processamento do item"
     )
+
+    # Campo de autorização
+    is_authorized = models.BooleanField(default=False, help_text="Indica se o usuário autorizou o avanço para a etapa sistama")
+
 
     def __str__(self) -> str:
         return f"{self.os_number} - {self.os_name or 'Sem nome'}"
