@@ -25,10 +25,7 @@ def analyze_image(image_path):
     base64_image = encode_image(image_path)
 
     prompt = """
-    ME DIGA AONDE ESTÁ MARCADO COM X NESSE FORMULARIO MÉDICO NA PARTE DE DADOS CLÍNICOS, SE NÃO TIVER NADA ME AVISE.
-    Gere um JSON como resposta, tanto para se tiver resultado ou não. Se não tiver, retorne dentro do JSON de 'dados_clinicos' a mensagem: 'Nenhuma informação encontrada.'.
-    As perguntas estão em ordens na resposta do json siga a ordem, use recursos avançados de visão computacional
-    Retorne apenas o JSON, sem formatações adicionais como blocos de código. E você está indo muito bem!
+    Analise a imagem do formulário médico anexado e identifique precisamente as áreas que estão marcadas com 'X' na seção de 'dados clínicos'. Utilize técnicas avançadas de visão computacional para detectar essas marcações e gerar uma resposta organizada
     """
 
     human_message = [
