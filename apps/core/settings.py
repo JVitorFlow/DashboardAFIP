@@ -18,8 +18,25 @@ OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = [
+    'localhost',
+    '127.0.0.1',
+    'f1c4-168-232-162-19.ngrok-free.app',
+]
 
+
+CORS_ALLOWED_ORIGINS = [
+    'https://f1c4-168-232-162-19.ngrok-free.app',
+    'http://localhost',
+    'http://127.0.0.1',
+]
+
+CORS_ALLOW_CREDENTIALS = True
+
+
+CSRF_TRUSTED_ORIGINS = [
+    'https://f1c4-168-232-162-19.ngrok-free.app'
+]
 
 # Application definition
 
@@ -49,6 +66,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
