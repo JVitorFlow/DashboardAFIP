@@ -1,211 +1,212 @@
-# Orchestrator RPA
+# Orquestrador RPA
 
-The Orchestrator RPA Project is a platform that enables users to upload and manage massive tasks to be processed by automation robots (RPA). This tool addresses the problem of the need to perform repetitive and multiple tasks in systems that do not support the massive input of requests. Likewise, it integrates an orchestrator that intelligently assigns tasks to the robot with the fewest items under its responsibility.
+O **Orquestrador RPA** é uma plataforma desenvolvida para permitir que usuários enviem e gerenciem tarefas massivas a serem processadas por robôs de automação (RPA). Essa solução resolve o problema da necessidade de realizar tarefas repetitivas e múltiplas em sistemas que não suportam a entrada massiva de solicitações. O sistema também possui um orquestrador que distribui as tarefas de forma inteligente para o robô com menos itens sob sua responsabilidade.
 
-## Problem Description
+## 🚀 Visão Geral do Projeto
 
-Many companies face the challenge of performing repetitive tasks manually due to limitations in the systems they use. This project aims to solve this problem by allowing users to upload massive tasks in a CSV format, which are then efficiently processed by automation robots.
+Este projeto utiliza **Django REST Framework** para a API, **Celery** para gerenciamento de tarefas assíncronas, **RabbitMQ** como message broker e **PostgreSQL** como banco de dados principal. Além disso, utilizamos **Swagger** para documentação da API e **JWT (JSON Web Token)** para autenticação segura.
 
-## Key Features
+## 📌 Recursos Principais
 
-* User-friendly and responsive graphical interface for users.
-* User authentication for task uploading and management.
-* Ability to upload tasks with multiple items (e.g., phone numbers, account numbers).
-* API for robots to connect and make requests.
-* Robot status (ACTIVE/INACTIVE) and state change through PATCH requests.
-* Automatic assignment of tasks to active robots for efficiency optimization.
-* Automatic disconnection of inactive robots.
-* Pulse system for monitoring robot activity.
-* Utilization of Celery for automatic task assignment and finding available robots.
-* Integration with Django REST Framework for the API.
+✅ Interface gráfica responsiva e intuitiva para os usuários.
+✅ Autenticação e gerenciamento de usuários.
+✅ Envio e processamento de tarefas massivas via CSV.
+✅ API REST para integração com robôs de automação.
+✅ Monitoramento de status dos robôs e atribuição dinâmica de tarefas.
+✅ Desconexão automática de robôs inativos.
+✅ Utilização de Celery para gerenciamento inteligente das tarefas.
+✅ Documentação da API com Swagger.
+✅ Autenticação via Simple JWT.
+✅ Uso de `entrypoint.sh` para automação do ambiente em produção.
 
-## Configuration and Requirements
+---
 
-### 1. Installing project dependencies
+## 🔧 Configuração do Ambiente
 
-#### 1.1 Create the `.env` file in the project's root directory, for example:
+### 📁 Criar Arquivo `.env`
+
+Crie um arquivo `.env` na raiz do projeto e preencha com os valores adequados:
+
+```ini
+SECRET_KEY='chave_secreta'
+POSTGRES_DB='nome_do_banco'
+POSTGRES_USER='usuario_do_banco'
+POSTGRES_PASSWORD='senha_do_banco'
+DB_HOST='db'
+DB_PORT='5432'
+CELERY_BROKER_URL='amqp://guest:guest@rabbitmq:5672//'
+DATABASE_URL='postgres://usuario:senha@db:5432/nome_do_banco'
+OPENAI_API_KEY='chave_api_openai'
+NGROK_AUTHTOKEN='token_ngrok'
+PG_ADMIN_EMAIL='admin@email.com'
+PG_ADMIN_PASSWORD='senha_admin'
+DJANGO_SUPERUSER_USERNAME='admin'
+DJANGO_SUPERUSER_EMAIL='admin@email.com'
+DJANGO_SUPERUSER_PASSWORD='senha_admin'
 ```
-SECRET_KEY='django-insecure-yyq+f%345b#%1r-)vbfernando9+i9%bzn)229yk)h&3wpzjb-_t'
-```
 
-#### 1.2 Create a Python environment
+---
+
+## 🚀 Instalação e Inicialização
+
+### 1️⃣ Clonar o Repositório
+
 ```bash
-python3 -m virtualenv env
-source env/bin/activate
+git clone https://github.com/seu_usuario/orquestrador-rpa.git
+cd orquestrador-rpa
 ```
 
-#### 1.3 Install libraries and packages
+### 2️⃣ Criar Ambiente Virtual e Instalar Dependências
+
 ```bash
+python3 -m venv env
+source env/bin/activate  # Linux/macOS
+env\Scripts\activate    # Windows
 pip install -r requirements.txt
 ```
 
-#### 1.4 Install Celery and RabbitMQ
+### 3️⃣ Criar e Configurar o Banco de Dados
 
 ```bash
-sudo apt-get update
-sudo apt-get install celery 
-sudo apt-get install rabbitmq-server
+python manage.py makemigrations
+python manage.py migrate
 ```
 
-### 2. Configure the database and migrate
+### 4️⃣ Criar Superusuário
 
 ```bash
-python3 manage.py makemigrations
-python3 manage.py migrate
+python manage.py createsuperuser
 ```
 
-### 3. Create Superuser
+### 5️⃣ Executar o Servidor Django
 
 ```bash
-python3 manage.py createsuperuser
+python manage.py runserver
 ```
 
-### 4. Create robots and processes
+---
 
-Before creating robots, a user must be created for each robot; subsequently, the robot is created by passing the created user as an argument to its `robot_id` attribute.
+## 📜 Documentação da API com Swagger
 
-You can make any modifications such as creating users, robots, and processes by logging in to:
-https://localhost:8000/admin
+A documentação da API pode ser acessada através do Swagger na URL:
 
-You can also do it using the Django Shell:
+📌 **http://localhost:8000/docs**
+
+---
+
+## 🔐 Autenticação com Simple JWT
+
+A API utiliza autenticação via **JWT (JSON Web Token)**. Para obter um token de acesso, faça uma requisição `POST`:
+
+```http
+POST /api/token/
+Content-Type: application/json
+{
+    "username": "seu_usuario",
+    "password": "sua_senha"
+}
+```
+
+Resposta:
+```json
+{
+    "refresh": "token_refresh",
+    "access": "token_access"
+}
+```
+
+Use o token nos cabeçalhos das requisições autenticadas:
+
+```http
+Authorization: Bearer seu_token_access
+```
+
+---
+
+## ⚙️ Execução no Docker
+
+O projeto usa **Docker** para facilitar a implantação.
+
+### 1️⃣ Construir e Iniciar os Containers
 
 ```bash
-python3 manage.py shell
+docker-compose up --build -d
 ```
 
-```python
-    >>> from django.contrib.auth.models import User
-    >>> from apps.robots.models import Robot
-    >>> from processes.models import Process
-    >>> user1 = User.objects.create(username='robot1', password='123')
-    >>> robot1 = Robot.objects.create(user_id=user1, ip_address='0.0.0.1')
-    <Robot: 0.0.0.1>
-    >>> process1 = Process.objects.create(title='Proccess1')
-```
-
-Remember that a process is something to be carried out by the robot, for example (Balance reload, Account registration, etc).
-This logic should be configured in your own way within your robot.
-
-### 5. Start the RabbitMQ server
-
-Check if it's already running:
-```bash
-sudo rabbitmqctl status
-```
-If it's not running, then start the server.
-```bash
-sudo rabbitmq-server
-```
-
-### 6. ⚠️Necessary actions
-
-Before running the server, you must uncomment the lines in the `robots/tasks.py` and `tasks/views.py` modules.
-
-### 7. Start the Django server
+### 2️⃣ Parar os Containers
 
 ```bash
-python3 manage.py runserver
+docker-compose down
 ```
 
-### 8. Initiate Celery Beat
+### 3️⃣ Visualizar Logs
 
-Navigate to the root path of the project and execute:
 ```bash
-celery -A orchestrator beat -l info
+docker logs nome_do_container -f
 ```
 
-### 9. Initiate the Celery Worker
+---
 
-Navigate to the root path of the project and execute:
+## 🔄 Uso do Celery e RabbitMQ
+
+O Celery é utilizado para o processamento assíncrono de tarefas. Para iniciar um worker do Celery, execute:
+
 ```bash
-celery -A orchestrator worker -l info
+celery -A orchestrator worker --loglevel=info
 ```
 
-## ✅Application Usage
-### ✅Basic Login Form
-Log in using your credentials; afterward, you will be able to view the user dashboard.
-![Login](images/login.jpg)
-### ✅Simple Dashboard
-You can also visualize the number of connected robots, tasks, and loaded items.
-![dashboard](images/dashboard.jpg)
-### ✅Creating tasks
-Add tasks by clicking on (+ New task), upload the `.csv` file, and it will automatically start assigning tasks as soon as a connected robot is found.
-![addtasks](images/addtask.jpg)
-![items](images/items.jpg)
+Para iniciar o **Celery Beat** (agendador de tarefas periódicas):
 
-## CSV Format
-
-To upload tasks to the Orchestrator RPA Project, you must use a CSV file with the following format:
-```
-    linea,valor,field_name
-    1,a,hello
-    2,b,hello
-    3,c,hello
-```
-- `linea`: Line number or count (integer).
-- `valor`: Task value (text).
-- `field_name`: Name of the field associated with the task, you can use it for another important field (text).
-
-Make sure that the fields are separated by commas and that each line represents an individual task. This format allows you to upload tasks with multiple items, such as phone numbers or account numbers, along with the task description and associated field.
-
-## Using Robots
-
-Robots can be programmed in different RPA languages or IDEs, such as UiPath, AA360, PowerAutomate, Python, etc. The API provides a way to establish a connection between the robots and the web platform.
-
-## Using the API
-
-The Orchestrator RPA Project's API allows you to interact with the robots and efficiently manage tasks. All API requests are intended to be made by the Robots. For security reasons, they must include an authorization token (don't forget to create it in the admin panel) in the header for authentication. The authentication header must have the following format:
-
-`Authorization: Token XXXX-XXXX-XXXX-XXXX`
-
-Below are examples of how to use some of the available endpoints:
-
-### Get/Modify Robots
-
-To retrieve/modify information about robots, make a GET/PATCH request to the `/api/robots/` endpoint with the authorization token in the header.
-
-```
-GET /api/robots/
-Authorization: Token XXXX-XXXX-XXXX-XXXX
-Params: {"robot_id": 1, "status": "ACTIVE" }
-```
-```
-PATCH /api/robots/
-Authorization: Token XXXX-XXXX-XXXX-XXXX
-Params: {"robot_id": 1, "status": "ACTIVE" }
+```bash
+celery -A orchestrator beat --loglevel=info
 ```
 
-### Get/Modify Tasks
+---
 
-To retrieve/modify information about tasks, make a GET/PATCH request to the `/api/tasks/` endpoint with the authorization token in the header:
+## 📡 Exposição do Servidor com Ngrok
 
-```
-GET /api/tasks/
-Authorization: Token XXXX-XXXX-XXXX-XXXX
-Params: {"robot_id": 1}
-```
-```
-PATCH /api/tasks/
-Authorization: Token XXXX-XXXX-XXXX-XXXX
-Params: {"item_id": 1, "status": "COMPLETED", "observation": "Sin observaciones"}
-```
+O **Ngrok** é utilizado para expor o servidor local para acessos externos.
 
-### Modify Items
-Only the PATCH endpoint `/api/items/` is enabled to modify an item once it's completed, as all items/values are obtained through the GET TASKS endpoint.
-```
-PATCH /api/tasks/
-Authorization: Token XXXX-XXXX-XXXX-XXXX
-Params: {"robot_id": 1, "task_id": 1, "status": "COMPLETED"}
+### 1️⃣ Configurar o arquivo `ngrok.yml`
+
+```yaml
+version: "3"
+agent:
+  authtoken: ${NGROK_AUTHTOKEN}
+
+tunnels:
+  basic:
+    proto: http
+    addr: 80
 ```
 
+### 2️⃣ Iniciar o Ngrok
 
-Remember that the parameters may vary as you make the requests, the API documentation is located at:  http://localhost:8000/docs
+```bash
+docker-compose up ngrok -d
+```
 
-## Credits
+---
 
-Developed by [@daferferso](https://github.com/daferferso). IInspired by the necessity to automate repetitive tasks in corporate environments with proper robot management.
-Thanks to [@themesberg](https://github.com/themesberg) and [@app-generator](https://github.com/app-generator) for the VOLT template.
+## 🛠 EntryPoint.sh
 
-## License
+O projeto utiliza um **script de entrada (`entrypoint.sh`)** para automação do ambiente. Esse script:
 
-This project is under the MIT License. See the file [LICENSE.md](LICENSE.md) for more details.
+✅ Aguarda o banco de dados ficar pronto antes de iniciar o Django.
+✅ Aplica as migrações automaticamente.
+✅ Cria o superusuário caso necessário.
+✅ Coleta arquivos estáticos.
+✅ Inicia o servidor Gunicorn.
+
+Caso precise depurar, verifique os logs:
+
+```bash
+docker logs nome_do_container -f
+```
+
+---
+
+## 📜 Licença
+
+Este projeto está licenciado sob a **MIT License**.
+
