@@ -73,6 +73,7 @@ class Item(models.Model):
 
     # Campo de autorização
     is_authorized = models.BooleanField(default=False, help_text="Indica se o usuário autorizou o avanço para a etapa sistama")
+    bot_error_message = models.TextField(null=True, blank=True, help_text="Mensagem de erro do bot, se houver")
 
 
     def __str__(self) -> str:

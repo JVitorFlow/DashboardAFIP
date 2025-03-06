@@ -18,25 +18,31 @@ OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+NGROK_DOMAIN = os.getenv("NGROK_DOMAIN")
+
 ALLOWED_HOSTS = [
     'localhost',
     '127.0.0.1',
-    'f1c4-168-232-162-19.ngrok-free.app',
 ]
 
+if NGROK_DOMAIN:
+    ALLOWED_HOSTS.append(NGROK_DOMAIN)
 
 CORS_ALLOWED_ORIGINS = [
-    'https://f1c4-168-232-162-19.ngrok-free.app',
     'http://localhost',
     'http://127.0.0.1',
 ]
 
+if NGROK_DOMAIN:
+    CORS_ALLOWED_ORIGINS.append(f"https://{NGROK_DOMAIN}")
+
+
 CORS_ALLOW_CREDENTIALS = True
 
 
-CSRF_TRUSTED_ORIGINS = [
-    'https://f1c4-168-232-162-19.ngrok-free.app'
-]
+CSRF_TRUSTED_ORIGINS = []
+if NGROK_DOMAIN:
+    CSRF_TRUSTED_ORIGINS.append(f"https://{NGROK_DOMAIN}")
 
 # Application definition
 
@@ -61,6 +67,7 @@ INSTALLED_APPS = [
     'apps.items',
     'apps.values',
     'apps.ai',
+    'apps.alerts',
 ]
 
 MIDDLEWARE = [

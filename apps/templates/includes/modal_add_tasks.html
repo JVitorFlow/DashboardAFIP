@@ -1,54 +1,114 @@
-<a href="#" class="btn btn-block btn-info mb-0 d-inline-flex align-items-center" data-bs-toggle="modal" data-bs-target="#modal-form">
-    <svg class="icon icon-xs me-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-        xmlns="http://www.w3.org/2000/svg">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6">
-        </path>
-    </svg>
-    Nova tarefa
+<!-- Botão de Abertura do Modal -->
+<a
+  href="#"
+  class="btn d-inline-flex align-items-center btn-primary mb-0"
+  data-bs-toggle="modal"
+  data-bs-target="#modal-form"
+>
+  <svg
+    class="icon icon-xs me-2"
+    fill="none"
+    stroke="currentColor"
+    viewBox="0 0 24 24"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      stroke-width="2"
+      d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+    ></path>
+  </svg>
+  Nova tarefa
 </a>
 
-<!-- Conteúdo do Modal -->
-<div class="modal fade" id="modal-form" tabindex="-1" role="dialog" aria-labelledby="modal-form" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
-            <div class="modal-body p-0">
-                <div class="card p-3 p-lg-4">
-                    <button type="button" class="btn-close ms-auto" data-bs-dismiss="modal" aria-label="Close"></button>
-                    <div class="text-center text-md-center mb-4 mt-md-0">
-                        <h1 class="mb-0 h4">Carregar tarefa</h1>
-                    </div>
-                    <div class="d-flex justify-content-center align-items-center">
-                        <p class="fw-normal">
-                            Lembre-se de enviar o arquivo no formato .csv que foi fornecido
-                        </p>
-                    </div>
-                    <!-- Formulário -->
-                    <form method="post" enctype="multipart/form-data" action="{% url 'tasks' %}" class="mt-4" id="my-form">
-                        {% csrf_token %}
-                        <div class="mb-3">
-                            <label for="formFile" class="form-label">Envie seu arquivo</label>
-                            <input class="form-control" type="file" id="formFile" name="formFile" required="true">
-                        </div>
-                        <div class="mb-4">
-                            <label class="my-1 me-2" for="process_id">Selecione um processo</label>
-                            <select class="form-select" id="{{process.id}}" name="process_id" aria-label="Default select example" required="true">
-                                {% for process in processes %}
-                                {% if process.enabled %}
-                                <option value="{{process.id}}">{{process.title}}</option>
-                                {% else %}
-                                <option value="{{process.id}}" disabled>{{process.title}}</option>
-                                {% endif %}
-                                {% endfor %}
-                            </select>
-                        </div>
-                        <div class="d-grid">
-                            <button type="submit" class="btn btn-gray-800">Enviar</button>
-                        </div>
-                    </form>
-                    <!-- Fim do Formulário -->
-                </div>
-            </div>
-        </div>
+<!-- Modal -->
+<div
+  class="modal fade"
+  id="modal-form"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="modalFormLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      
+      <!-- Cabeçalho do Modal -->
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalFormLabel">Carregar Tarefa</h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+
+      <!-- Corpo do Modal -->
+      <div class="modal-body">
+        <p class="text-muted small mb-4">
+          Lembre-se de enviar o arquivo no formato <strong>.csv</strong> que foi fornecido.
+        </p>
+
+        <!-- Formulário -->
+        <form
+          method="post"
+          enctype="multipart/form-data"
+          action="{% url 'tasks' %}"
+          id="my-form"
+        >
+          {% csrf_token %}
+
+          <!-- Campo para o arquivo -->
+          <div class="mb-3">
+            <label for="formFile" class="form-label">Envie seu arquivo</label>
+            <input
+              class="form-control"
+              type="file"
+              id="formFile"
+              name="formFile"
+              required="true"
+            />
+          </div>
+
+          <!-- Campo para seleção do processo -->
+          <div class="mb-4">
+            <label class="form-label my-1" for="process_id">Selecione um processo</label>
+            <select
+              class="form-select"
+              id="{{ process.id }}"
+              name="process_id"
+              required="true"
+            >
+              {% for process in processes %}
+                {% if process.enabled %}
+                  <option value="{{ process.id }}">{{ process.title }}</option>
+                {% else %}
+                  <option value="{{ process.id }}" disabled>{{ process.title }}</option>
+                {% endif %}
+              {% endfor %}
+            </select>
+          </div>
+
+          <!-- Botão de Envio -->
+          <div class="d-grid">
+            <button type="submit" class="btn btn-primary">
+              <i class="fas fa-upload me-1"></i> Enviar
+            </button>
+          </div>
+        </form>
+        <!-- Fim do Formulário -->
+
+      </div>
+      <!-- Fim do Corpo do Modal -->
+      
+      <!-- Rodapé do Modal (opcional) -->
+      <!-- 
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+      </div>
+      -->
     </div>
+  </div>
 </div>
-<!-- Fim do Conteúdo do Modal -->

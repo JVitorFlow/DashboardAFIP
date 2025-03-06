@@ -142,20 +142,20 @@ class ItemViewSet(viewsets.ModelViewSet):
             openapi.Parameter("stage", openapi.IN_QUERY, description="Nova etapa do item (SHIFT, IMAGE_PROCESS, SISMAMA, COMPLETED).", type=openapi.TYPE_STRING),
             openapi.Parameter("item__started_at", openapi.IN_QUERY, description="Data e hora de início (formato: AAAA-MM-DD HH:MM:SS).", type=openapi.TYPE_STRING),
             openapi.Parameter("item__ended_at", openapi.IN_QUERY, description="Data e hora de término (formato: AAAA-MM-DD HH:MM:SS).", type=openapi.TYPE_STRING),
+            openapi.Parameter("bot_error_message", openapi.IN_QUERY, description="Mensagem de erro do bot, se houver.", type=openapi.TYPE_STRING),
         ]
     )
     @action(detail=True, methods=['patch'], url_path='update-status')
     def update_status(self, request, pk=None):
         """
-        Edita o estado e a etapa de um item pelo seu ID e o `robot_id` associado.
-
+        Atualiza o status, a etapa e, se fornecido, a mensagem de erro do bot de um item pelo seu ID.
         Parâmetros:
-        - robot_id (int): ID do robô associado ao item.
+        - robot_id (int): ID do robô associado.
         - status (str): Novo status do item.
         - stage (str): Nova etapa do item.
-
-        Retorna:
-        - Response: Resposta HTTP com o resultado da operação.
+        - item__started_at (str): Data e hora de início.
+        - item__ended_at (str): Data e hora de término.
+        - bot_error_message (str): Mensagem de erro do bot, se houver.
         """
         robot_id = request.data.get('robot_id')
         stage = request.data.get('stage')

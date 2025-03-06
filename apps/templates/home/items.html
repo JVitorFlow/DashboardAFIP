@@ -1,114 +1,276 @@
 {% extends "layouts/base.html" %}
-
 {% load static %}
 
 {% block title %}Itens{% endblock %}
 
-<!-- Specific Page CSS goes HERE  -->
 {% block stylesheets %}
-    <link rel="stylesheet" href="{% static 'assets/css/items.css' %}">
+<link rel="stylesheet" href="{% static 'assets/css/items.css' %}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+<style>
+  /* Container e Tabela */
+  .table-wrapper {
+    border-radius: 10px;
+    overflow: hidden;
+    background: #fff;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  }
+  .table thead {
+    background-color: #f9fafb;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  .table tbody tr:nth-child(even) {
+    background-color: #f3f3f3;
+  }
+  .table th, .table td {
+    padding: 12px;
+    text-align: left;
+  }
+  .table-responsive {
+    overflow-x: auto;
+  }
+  .text-truncate {
+    max-width: 150px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  /* Badges para status */
+  .badge {
+    font-size: 0.85rem;
+    padding: 6px 12px;
+    border-radius: 8px;
+  }
+  .badge-success {
+    background-color: #198754;
+    color: #fff;
+  }
+  .badge-pending {
+    background-color: #6c757d;
+    color: #fff;
+  }
+  .badge-error {
+    background-color: #dc3545;
+    color: #fff;
+  }
+  .badge-info {
+    background-color: #0dcaf0;
+    color: #fff;
+  }
+  
+  /* Botões */
+  .btn {
+    transition: all 0.2s ease-in-out;
+    font-weight: 500;
+  }
+  .btn:hover {
+    transform: scale(1.05);
+  }
+  .btn-icon {
+    padding: 5px 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+</style>
 {% endblock stylesheets %}
 
 {% block content %}
-<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center py-2" style="padding-left: 20px;">
-    <div class="d-block mb-2 mb-md-0">
-        <h2 class="h4">Itens da Tarefa ID: {{ task.id }}</h2>
-        <p class="mb-0">Processo: {{ task.process_id }}</p>
-    </div>
-</div>
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="h4">Itens da Tarefa ID: {{ task.id }}</h2>
+    <p class="text-muted">Processo: {{ task.process_id }}</p>
+  </div>
 
-<div class="card card-body border-0 shadow table-wrapper table-responsive">
-    <table class="table table-hover">
-        <thead>
-            <tr>
-                <th class="border-gray-200">Id</th>
-                <th class="border-gray-200">Usuário</th>
-                <th class="border-gray-200">Data de Criação</th>
-                <th class="border-gray-200">Data de Início</th>
-                <th class="border-gray-200">Data de Fim</th>
-                <th class="border-gray-200">Estado</th>
-                <th class="border-gray-200">Etapa Atual</th>
-                <th class="border-gray-200">O.S.</th>
-                <th class="border-gray-200">Nome da Pessoa</th>
-                <th class="border-gray-200">Resultado Shift</th>
-                <th class="border-gray-200">Resultado Sismama</th>
-                <th class="border-gray-200">Autorizar Execução</th>
-                <th class="border-gray-200">Detalhes da Imagem</th>
-                <th class="border-gray-200">Detalhes SHIFT</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for item in object_list %}
-            <tr>
-                <td><span class="fw-extrabold">{{ item.id }}</span></td>
-                <td>
-                    <span class="fw-normal">
-                        {% if not item.robot_id %}
-                            Não Atribuído
-                        {% else %}
-                            {{ item.robot_id.user_id.username }}
-                        {% endif %}
-                    </span>
-                </td>
-                <td><span class="fw-bold text-primary">{{ item.created_at|date:"d/m/Y" }} {{ item.created_at|time:"H:i" }}</span></td>
-                <td><span class="fw-bold text-info">{{ item.started_at|date:"d/m/Y" }} {{ item.started_at|time:"H:i" }}</span></td>
-                <td><span class="fw-bold text-success">{{ item.ended_at|date:"d/m/Y" }} {{ item.ended_at|time:"H:i" }}</span></td>
-                <td>
-                    <span class="badge {% if item.status == 'CREATED' %} bg-primary {% elif item.status == 'STARTED' %} bg-warning {% elif item.status == 'COMPLETED' %} bg-success {% elif item.status == 'ERROR' %} bg-danger {% endif %}">
-                        {{ item.status }}
-                    </span>
-                </td>
-                <td>
-                    <span class="badge
-                        {% if item.stage == 'PENDING' %} bg-secondary
-                        {% elif item.stage == 'SHIFT' %} bg-info
-                        {% elif item.stage == 'IMAGE_PROCESS' %} bg-warning
-                        {% elif item.stage == 'SISMAMA' %} bg-primary
-                        {% elif item.stage == 'COMPLETED' %} bg-success
-                        {% endif %}">
-                        {{ item.stage }}
-                    </span>
-                </td>
-                <td><span class="fw-bold text-info">{{ item.os_number }}</span></td>
-                <td><span class="fw-bold text-info">{{ item.os_name|default:"-" }}</span></td>
-                <td><span class="fw-normal">{{ item.shift_result|default:"-" }}</span></td>
-                <td><span class="fw-normal">{{ item.sismama_result|default:"-" }}</span></td>
-                <td>
-                    {% if item.stage == 'SISMAMA' %}
-                        {% if item.is_authorized %}
-                            <button id="authorize-button-{{ item.id }}" class="btn btn-sm btn-success" disabled>
-                                Autorizado
-                            </button>
-                        {% else %}
-                            <button id="authorize-button-{{ item.id }}" class="btn btn-sm btn-outline-success" onclick="authorizeExecution('{{ item.id }}')">
-                                Autorizar
-                            </button>
-                        {% endif %}
-                    {% else %}
-                        <span class="text-muted">-</span>
-                    {% endif %}
-                </td>                                               
-                <!-- Coluna: Detalhes do Image Result -->
-                <td>
-                    {% if item.image_result %}
-                        <button class="btn btn-sm btn-outline-info" data-bs-toggle="modal" data-bs-target="#imageModal{{ item.id }}">
-                            <i class="fas fa-eye"></i> Ver Detalhes
-                        </button>
-                        {% include 'includes/modal_image_result.html' %}
-                    {% else %}
-                        <span class="text-muted">Sem Resultados</span>
-                    {% endif %}
-                </td>
-                <td>{% include 'includes/modal_default.html' %}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>    
-</div>
+  <div class="card card-body border-0 shadow table-wrapper table-responsive">
+    <table class="table table-sm table-hover align-middle">
+      <thead class="table-light sticky-top">
+        <tr>
+          <th>ID</th>
+          <th>Usuário</th>
+          <th>Criação</th>
+          <th>Período</th>
+          <th>Status Geral</th>
+          <th>O.S.</th>
+          <th>Nome</th>
+          <th>SHIFT</th>
+          <th>IMAGEM</th>
+          <th>SISMAMA</th>
+          <th>Autorização</th>
+          <th>Imagem</th>
+          <th>Erro</th>
+          <th>Detalhes</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in object_list %}
+        <tr>
+          <!-- Coluna 1: ID -->
+          <td class="fw-bold">{{ item.id }}</td>
+          
+          <!-- Coluna 2: Usuário -->
+          <td>
+            {% if not item.robot_id %}
+              <span class="text-muted">Não Atribuído</span>
+            {% else %}
+              {{ item.robot_id.user_id.username }}
+            {% endif %}
+          </td>
+          
+          <!-- Coluna 3: Criação -->
+          <td class="text-primary">{{ item.created_at|date:"d/m/Y H:i" }}</td>
+          
+          <!-- Coluna 4: Período (Início - Fim) -->
+          <td>
+            {% if item.started_at or item.ended_at %}
+              {{ item.started_at|date:"d/m/Y H:i" }} - {{ item.ended_at|date:"d/m/Y H:i" }}
+            {% else %}
+              <span class="text-muted">-</span>
+            {% endif %}
+          </td>
+          
+          <!-- Coluna 5: Status Geral -->
+          <td>
+            {% if item.status == "COMPLETED" %}
+              <span class="badge badge-success" data-bs-toggle="tooltip" title="Processo concluído">Concluído</span>
+            {% elif item.status == "ERROR" %}
+              <span class="badge badge-error" data-bs-toggle="tooltip" title="Erro geral no item">Erro</span>
+            {% elif item.status == "STARTED" %}
+              <span class="badge badge-info" data-bs-toggle="tooltip" title="Em execução">Em execução</span>
+            {% else %}
+              <span class="badge badge-pending" data-bs-toggle="tooltip" title="Processo pendente">Pendente</span>
+            {% endif %}
+          </td>
+          
+          <!-- Coluna 6: O.S. -->
+          <td class="fw-bold text-info">{{ item.os_number }}</td>
+          
+          <!-- Coluna 7: Nome (truncado) -->
+          <td class="text-truncate" style="max-width:150px;" title="{{ item.os_name|default:'-' }}">
+            {{ item.os_name|default:'-' }}
+          </td>
+          
+          <!-- Coluna 8: SHIFT -->
+          <td>
+            {% if item.shift_result %}
+              <span class="badge badge-success" data-bs-toggle="tooltip" title="SHIFT concluído">Concluído</span>
+            {% elif item.shift_error %}
+              <span class="badge badge-error" data-bs-toggle="tooltip" title="Erro na etapa SHIFT">Erro</span>
+            {% else %}
+              <span class="badge badge-pending" data-bs-toggle="tooltip" title="SHIFT pendente">Pendente</span>
+            {% endif %}
+          </td>
+          
+          <!-- Coluna 9: IMAGEM -->
+          <td>
+            {% if item.image_result %}
+              <span class="badge badge-success" data-bs-toggle="tooltip" title="IMAGEM concluída">Concluído</span>
+            {% elif item.image_error %}
+              <span class="badge badge-error" data-bs-toggle="tooltip" title="Erro na etapa IMAGEM">Erro</span>
+            {% else %}
+              <span class="badge badge-pending" data-bs-toggle="tooltip" title="IMAGEM pendente">Pendente</span>
+            {% endif %}
+          </td>
+          
+          <!-- Coluna 10: SISMAMA -->
+          <td>
+            {% if item.sismama_result %}
+              <span class="badge badge-success" data-bs-toggle="tooltip" title="SISMAMA concluída">Concluído</span>
+            {% elif item.sismama_error %}
+              <span class="badge badge-error" data-bs-toggle="tooltip" title="Erro na etapa SISMAMA">Erro</span>
+            {% else %}
+              <span class="badge badge-pending" data-bs-toggle="tooltip" title="SISMAMA pendente">Pendente</span>
+            {% endif %}
+          </td>
+          
+          <!-- Coluna 11: Autorização (apenas para SISMAMA) -->
+          <td>
+            {% if item.stage == 'SISMAMA' %}
+                {% if item.is_authorized %}
+                    <button 
+                        id="authorize-button-{{ item.id }}"
+                        class="btn btn-sm btn-success"
+                        disabled
+                    >
+                        Autorizado
+                    </button>
+                {% else %}
+                    <button
+                        id="authorize-button-{{ item.id }}"
+                        class="btn btn-sm btn-outline-success"
+                        onclick="authorizeExecution('{{ item.id }}')"
+                    >
+                        Autorizar
+                    </button>
+                {% endif %}
+            {% else %}
+                <span class="text-muted">-</span>
+            {% endif %}
+          </td>
+          
+          <!-- Coluna 12: Imagem (Modal) -->
+          <td>
+            {% if item.image_result %}
+              <button class="btn btn-icon btn-outline-info" data-bs-toggle="modal" data-bs-target="#imageModal{{ item.id }}">
+                <i class="fas fa-image"></i>
+              </button>
+              {% include 'includes/modal_image_result.html' %}
+            {% else %}
+              <span class="text-muted">Sem Resultados</span>
+            {% endif %}
+          </td>
 
+          <td>
+            {% if item.bot_error_message %}
+              <!-- Botão que abre um modal mostrando a mensagem de erro -->
+              <button class="btn btn-icon btn-outline-danger" data-bs-toggle="modal" data-bs-target="#botErrorModal{{ item.id }}">
+                <i class="fas fa-exclamation-circle"></i>
+              </button>
+
+              <!-- Modal com a mensagem de erro -->
+              <div class="modal fade" id="botErrorModal{{ item.id }}" tabindex="-1" aria-labelledby="botErrorModalLabel{{ item.id }}" aria-hidden="true">
+                <div class="modal-dialog">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h5 class="modal-title" id="botErrorModalLabel{{ item.id }}">Detalhes do Erro</h5>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                      {{ item.bot_error_message }}
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            {% else %}
+              <span class="text-muted">-</span>
+            {% endif %}
+          </td>
+          
+          <!-- Coluna 13: Detalhes (Modal) -->
+          <td>
+            {% include 'includes/modal_default.html' %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+  
 {% endblock content %}
 
-<!-- Specific Page JS goes HERE  -->
 {% block javascripts %}
-    <script src="{% static 'assets/js/items.js' %}" defer></script>
+<script src="{% static 'assets/js/items.js' %}" defer></script>
+<script>
+  // Inicializa tooltips do Bootstrap
+  var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"], [title]'))
+  var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+    return new bootstrap.Tooltip(tooltipTriggerEl)
+  })
+</script>
 {% endblock javascripts %}
