@@ -16,6 +16,7 @@
                 <div class="modal-body">
                     {% if item.shift_data.first %}
                         <!-- Se existir shift_data para o item, exibe os dados -->
+
                         <div class="col-lg-12 col-sm-6">
                             <div class="mb-3">
                                 <label for="cnes-{{ item.id }}">CNES</label>
@@ -47,7 +48,13 @@
                             </div>
                             <div class="mb-3">
                                 <label for="data_nascimento-{{ item.id }}">Data de Nascimento</label>
-                                <input type="text" name="data_nascimento" id="data_nascimento-{{ item.id }}" class="form-control" value="{{ item.shift_data.first.data_nascimento }}">
+                                <input 
+                                    type="date" 
+                                    name="data_nascimento" 
+                                    id="data_nascimento-{{ item.id }}" 
+                                    class="form-control" 
+                                    value="{{ item.shift_data.first.data_nascimento|date:'Y-m-d' }}"
+                                >
                             </div>
                             <div class="mb-3">
                                 <label for="data_coleta-{{ item.id }}">Data de Coleta</label>
