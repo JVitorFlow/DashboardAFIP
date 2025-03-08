@@ -256,7 +256,7 @@ class ItemViewSet(viewsets.ModelViewSet):
 
         # Retornar a resposta
         if not sismama_data:
-            return Response({"detail": "Nenhum dado autorizado encontrado para SISMAMA."}, status=status.HTTP_404_NOT_FOUND)
+            return Response({"detail": "Nenhum dado autorizado encontrado para SISMAMA."}, status=status.HTTP_200_OK)
 
         return Response(sismama_data, status=status.HTTP_200_OK)
 
