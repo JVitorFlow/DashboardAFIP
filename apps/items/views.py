@@ -301,89 +301,90 @@ class ItemUpdateView(LoginRequiredMixin, UpdateView):
     template_name = 'includes/modal_default.html'
 
     def get_success_url(self):
-        # Redireciona para a lista de itens na tarefa
+        """Redireciona para a lista de itens da tarefa após atualização."""
         item = self.get_object()
         return reverse('items', args=[item.task_id])
 
     def get_context_data(self, **kwargs):
+        """Adiciona os dados do ShiftData ao contexto do template."""
         context = super().get_context_data(**kwargs)
-        # Obter dados de ShiftData associados ao Item
         item = self.get_object()
         shift_data = item.shift_data.first()
-
-        # Passar ShiftDataForm ao contexto para renderização
         context['shift_data_form'] = ShiftDataForm(instance=shift_data)
         return context
 
     def form_valid(self, form):
-        """Atualiza os dados do Item e dos campos relacionados."""
-
-        # Atualizar dados do Item (como `image_result`)
-        response = super().form_valid(form)
-
-        # Atualizar campos de `image_result`, se enviados
+        """Processa a atualização do item e do ShiftData relacionado."""
+        response = super().form_valid(form)  # Atualiza o item principal
         self.update_item_image_result()
-
-        # Atualizar campos de ShiftData, se enviados
         self.update_shift_data()
-
         return response
 
     def update_item_image_result(self):
-        """Atualizar apenas o campo image_result do Item."""
+        """Atualiza apenas o campo `image_result` do Item se um novo valor for enviado."""
         image_result = self.request.POST.get('image_result')
-        if image_result is not None:
+        if image_result:  # Só atualiza se um novo valor for enviado
             item = self.get_object()
             item.image_result = image_result
             item.save()
 
     def update_shift_data(self):
-        """Atualizar apenas os campos de ShiftData."""
-        # Obter o objeto ShiftData associado ao Item
+        """Atualiza os campos do ShiftData associados ao item."""
         shift_data = self.get_object().shift_data.first()
-
         if not shift_data:
-            # Se não existir ShiftData, não faz nada
-            return
+            return  # Se não existir ShiftData, não faz nada
 
-        # Atualizar apenas os campos enviados no formulário
         shift_data_fields = self.get_shift_data_fields()
         for field, value in shift_data_fields.items():
-            if value is not None:  # Apenas atualize se o campo foi enviado
+            if value is not None and str(value).strip():  # Evita sobrescrever com valores vazios
                 setattr(shift_data, field, value)
 
-        # Salvar mudanças no banco de dados
         shift_data.save()
 
     def get_shift_data_fields(self):
-        """Extrair campos enviados pelo formulário relacionados ao ShiftData."""
+        """Extrai os campos enviados no formulário relacionados ao ShiftData."""
         return {
-            'cnes': self.request.POST.get('cnes'),
-            'os_number': self.request.POST.get('os_number'),
-            'cartao_sus': self.request.POST.get('cartao_sus'),
-            'nome_paciente': self.request.POST.get('nome_paciente'),
-            'sexo': self.request.POST.get('sexo'),
-            'raca_etinia': self.request.POST.get('raca_etinia'),
-            'idade_paciente': self.request.POST.get('idade_paciente'),
+            'cnes': self.clean_value(self.request.POST.get('cnes')),
+            'os_number': self.clean_value(self.request.POST.get('os_number')),
+            'cartao_sus': self.clean_value(self.request.POST.get('cartao_sus')),
+            'nome_paciente': self.clean_value(self.request.POST.get('nome_paciente')),
+            'sexo': self.clean_value(self.request.POST.get('sexo')),
+            'raca_etinia': self.clean_value(self.request.POST.get('raca_etinia')),
+            'idade_paciente': self.parse_int(self.request.POST.get('idade_paciente')),
             'data_nascimento': self.parse_date(self.request.POST.get('data_nascimento')),
             'data_coleta': self.parse_date(self.request.POST.get('data_coleta')),
             'data_liberacao': self.parse_date(self.request.POST.get('data_liberacao')),
-            'tamanho_lesao': self.request.POST.get('tamanho_lesao'),
-            'caracteristica_lesao': self.request.POST.get('caracteristica_lesao'),
-            'localizacao_lesao': self.request.POST.get('localizacao_lesao'),
-            'codigo_postal': self.request.POST.get('codigo_postal'),
-            'logradouro': self.request.POST.get('logradouro'),
-            'numero_residencial': self.request.POST.get('numero_residencial'),
-            'cidade': self.request.POST.get('cidade'),
-            'estado': self.request.POST.get('estado'),
+            'tamanho_lesao': self.clean_value(self.request.POST.get('tamanho_lesao')),
+            'caracteristica_lesao': self.clean_value(self.request.POST.get('caracteristica_lesao')),
+            'localizacao_lesao': self.clean_value(self.request.POST.get('localizacao_lesao')),
+            'codigo_postal': self.clean_value(self.request.POST.get('codigo_postal')),
+            'logradouro': self.clean_value(self.request.POST.get('logradouro')),
+            'numero_residencial': self.clean_value(self.request.POST.get('numero_residencial')),
+            'cidade': self.clean_value(self.request.POST.get('cidade')),
+            'estado': self.clean_value(self.request.POST.get('estado')),
         }
 
     @staticmethod
     def parse_date(date_str):
-        """Converte data do formato 'YYYY-MM-DD' ou retorna None."""
+        """Converte data do formato 'YYYY-MM-DD' para um objeto date ou retorna None."""
+        if not date_str:
+            return None
         try:
+            date_str = date_str.split("T")[0]  # Remove horário se presente
             return datetime.strptime(date_str, '%Y-%m-%d').date()
         except (ValueError, TypeError):
             return None
 
+    @staticmethod
+    def parse_int(value):
+        """Converte string para inteiro ou retorna None."""
+        try:
+            return int(value) if value and value.isdigit() else None
+        except ValueError:
+            return None
+
+    @staticmethod
+    def clean_value(value):
+        """Remove espaços extras e retorna None se o valor for vazio."""
+        return value.strip() if value and value.strip() else None
 
