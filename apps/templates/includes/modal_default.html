@@ -1,3 +1,5 @@
+{% load date_filters %}
+
 <!-- Button to trigger the modal -->
 <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#modal-{{ item.id }}">
     Ver valores
@@ -58,11 +60,19 @@
                             </div>
                             <div class="mb-3">
                                 <label for="data_coleta-{{ item.id }}">Data de Coleta</label>
-                                <input type="text" name="data_coleta" id="data_coleta-{{ item.id }}" class="form-control" value="{{ item.shift_data.first.data_coleta }}">
+                                <input type="datetime-local"
+                                    name="data_coleta"
+                                    id="data_coleta-{{ item.id }}"
+                                    class="form-control"
+                                    value="{{ item.shift_data.first.data_coleta|iso_to_datetime_local }}">
                             </div>
                             <div class="mb-3">
                                 <label for="data_liberacao-{{ item.id }}">Data de Liberação</label>
-                                <input type="text" name="data_liberacao" id="data_liberacao-{{ item.id }}" class="form-control" value="{{ item.shift_data.first.data_liberacao }}">
+                                <input type="datetime-local"
+                                    name="data_liberacao"
+                                    id="data_liberacao-{{ item.id }}"
+                                    class="form-control"
+                                    value="{{ item.shift_data.first.data_liberacao|iso_to_datetime_local }}">
                             </div>
                             <div class="mb-3">
                                 <label for="tamanho_lesao-{{ item.id }}">Tamanho da Lesão</label>
