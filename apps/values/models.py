@@ -25,10 +25,12 @@ class ShiftData(models.Model):
     raca_etinia = models.CharField(max_length=255, blank=True, null=True)
     idade_paciente = models.IntegerField(blank=True, null=True)
     
-    # Alterando para DateTimeField para incluir data e horário
+
     data_nascimento = models.DateField(blank=True, null=True)
     data_coleta = models.DateTimeField(blank=True, null=True)
     data_liberacao = models.DateTimeField(blank=True, null=True)
+
+    recipiente = models.CharField(max_length=100, blank=True, null=True)
     
     tamanho_lesao = models.CharField(max_length=255, blank=True, null=True)
     caracteristica_lesao = models.CharField(max_length=255, blank=True, null=True)
