@@ -18,4 +18,4 @@ class Command(base.BaseCommand):
                 username=username, email=email, password=password
             )
         else:
-            print("✅ Superusuário já existe. Pulando criação...")
+            print("Superusuário já existe. Pulando criação...")
