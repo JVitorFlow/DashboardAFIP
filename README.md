@@ -1,6 +1,3 @@
-Veja abaixo uma versão do **README.md** ajustada para usar **exclusivamente o Docker/entrypoint.sh**, sem comandos manuais de `manage.py` e com a URL correta do Swagger:
-
-````markdown
 # Orquestrador RPA
 
 O **Orquestrador RPA** é uma plataforma desenvolvida para permitir que usuários enviem e gerenciem tarefas massivas a serem processadas por robôs de automação (RPA). Essa solução resolve o problema da necessidade de realizar tarefas repetitivas e múltiplas em sistemas que não suportam a entrada massiva de solicitações. O sistema também possui um orquestrador que distribui as tarefas de forma inteligente para o robô com menos itens sob sua responsabilidade.
