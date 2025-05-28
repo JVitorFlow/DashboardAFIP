@@ -1,126 +1,292 @@
 {% load date_filters %}
+{% load readonly_tags %}
 
 <!-- Button to trigger the modal -->
-<button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#modal-{{ item.id }}">
-    Ver valores
+<button
+  type="button"
+  class="btn btn-sm btn-primary"
+  data-bs-toggle="modal"
+  data-bs-target="#modal-{{ item.id }}"
+>
+  Ver valores
 </button>
 
 <!-- Modal Content with Form -->
-<div class="modal fade" id="modal-{{ item.id }}" tabindex="-1" role="dialog" aria-labelledby="modal-{{ item.id }}" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
-            <form method="POST" action="{% url 'item_update' item.id %}">
-                {% csrf_token %}
-                <div class="modal-header">
-                    <h2 class="h6 modal-title">Item: {{ item.id }}</h2>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    {% if item.shift_data.first %}
-                        <!-- Se existir shift_data para o item, exibe os dados -->
-
-                        <div class="col-lg-12 col-sm-6">
-                            <div class="mb-3">
-                                <label for="cnes-{{ item.id }}">CNES</label>
-                                <input type="text" name="cnes" id="cnes-{{ item.id }}" class="form-control" value="{{ item.shift_data.first.cnes }}">
-                            </div>
-                            <div class="mb-3">
-                                <label for="os_number-{{ item.id }}">O.S. Número</label>
-                                <input type="text" name="os_number" id="os_number-{{ item.id }}" class="form-control" value="{{ item.shift_data.first.os_number }}">
-                            </div>
-                            <div class="mb-3">
-                                <label for="cartao_sus-{{ item.id }}">Cartão SUS</label>
-                                <input type="text" name="cartao_sus" id="cartao_sus-{{ item.id }}" class="form-control" value="{{ item.shift_data.first.cartao_sus }}">
-                            </div>
-                            <div class="mb-3">
-                                <label for="nome_paciente-{{ item.id }}">Nome do Paciente</label>
-                                <input type="text" name="nome_paciente" id="nome_paciente-{{ item.id }}" class="form-control" value="{{ item.shift_data.first.nome_paciente }}">
-                            </div>
-                            <div class="mb-3">
-                                <label for="sexo-{{ item.id }}">Sexo</label>
-                                <input type="text" name="sexo" id="sexo-{{ item.id }}" class="form-control" value="{{ item.shift_data.first.sexo }}">
-                            </div>
-                            <div class="mb-3">
-                                <label for="raca_etinia-{{ item.id }}">Raça / Etnia</label>
-                                <input type="text" name="raca_etinia" id="raca_etinia-{{ item.id }}" class="form-control" value="{{ item.shift_data.first.raca_etinia }}">
-                            </div>
-                            <div class="mb-3">
-                                <label for="idade_paciente-{{ item.id }}">Idade do Paciente</label>
-                                <input type="number" name="idade_paciente" id="idade_paciente-{{ item.id }}" class="form-control" value="{{ item.shift_data.first.idade_paciente }}">
-                            </div>
-                            <div class="mb-3">
-                                <label for="data_nascimento-{{ item.id }}">Data de Nascimento</label>
-                                <input 
-                                    type="date" 
-                                    name="data_nascimento" 
-                                    id="data_nascimento-{{ item.id }}" 
-                                    class="form-control" 
-                                    value="{{ item.shift_data.first.data_nascimento|date:'Y-m-d' }}"
-                                >
-                            </div>
-                            <div class="mb-3">
-                                <label for="data_coleta-{{ item.id }}">Data de Coleta</label>
-                                <input type="datetime-local"
-                                    name="data_coleta"
-                                    id="data_coleta-{{ item.id }}"
-                                    class="form-control"
-                                    value="{{ item.shift_data.first.data_coleta|iso_to_datetime_local }}">
-                            </div>
-                            <div class="mb-3">
-                                <label for="data_liberacao-{{ item.id }}">Data de Liberação</label>
-                                <input type="datetime-local"
-                                    name="data_liberacao"
-                                    id="data_liberacao-{{ item.id }}"
-                                    class="form-control"
-                                    value="{{ item.shift_data.first.data_liberacao|iso_to_datetime_local }}">
-                            </div>
-                            <div class="mb-3">
-                                <label for="tamanho_lesao-{{ item.id }}">Tamanho da Lesão</label>
-                                <input type="text" name="tamanho_lesao" id="tamanho_lesao-{{ item.id }}" class="form-control" value="{{ item.shift_data.first.tamanho_lesao }}">
-                            </div>
-                            <div class="mb-3">
-                                <label for="caracteristica_lesao-{{ item.id }}">Característica da Lesão</label>
-                                <input type="text" name="caracteristica_lesao" id="caracteristica_lesao-{{ item.id }}" class="form-control" value="{{ item.shift_data.first.caracteristica_lesao }}">
-                            </div>
-                            <div class="mb-3">
-                                <label for="localizacao_lesao-{{ item.id }}">Localização da Lesão</label>
-                                <input type="text" name="localizacao_lesao" id="localizacao_lesao-{{ item.id }}" class="form-control" value="{{ item.shift_data.first.localizacao_lesao }}">
-                            </div>
-                            <div class="mb-3">
-                                <label for="codigo_postal-{{ item.id }}">Código Postal</label>
-                                <input type="text" name="codigo_postal" id="codigo_postal-{{ item.id }}" class="form-control" value="{{ item.shift_data.first.codigo_postal }}">
-                            </div>
-                            <div class="mb-3">
-                                <label for="logradouro-{{ item.id }}">Logradouro</label>
-                                <input type="text" name="logradouro" id="logradouro-{{ item.id }}" class="form-control" value="{{ item.shift_data.first.logradouro }}">
-                            </div>
-                            <div class="mb-3">
-                                <label for="numero_residencial-{{ item.id }}">Número Residencial</label>
-                                <input type="text" name="numero_residencial" id="numero_residencial-{{ item.id }}" class="form-control" value="{{ item.shift_data.first.numero_residencial }}">
-                            </div>
-                            <div class="mb-3">
-                                <label for="cidade-{{ item.id }}">Cidade</label>
-                                <input type="text" name="cidade" id="cidade-{{ item.id }}" class="form-control" value="{{ item.shift_data.first.cidade }}">
-                            </div>
-                            <div class="mb-3">
-                                <label for="estado-{{ item.id }}">Estado</label>
-                                <input type="text" name="estado" id="estado-{{ item.id }}" class="form-control" value="{{ item.shift_data.first.estado }}">
-                            </div>
-                        </div>
-                    {% else %}
-                        <div class="col-lg-12 col-sm-6">
-                            <div class="mb-1">
-                                <label>O item: {{ item.id }}</label>
-                                <p>Não há valores criados.</p>
-                            </div>
-                        </div>
-                    {% endif %}
-                </div>
-                <div class="modal-footer">
-                    <button type="submit" class="btn btn-primary">Salvar</button>
-                    <button type="button" class="btn btn-link text-gray-600 ms-auto" data-bs-dismiss="modal">Fechar</button>
-                </div>
-            </form>
+<div
+  class="modal fade"
+  id="modal-{{ item.id }}"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="modal-{{ item.id }}"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <form method="POST" action="{% url 'item_update' item.id %}">
+        {% csrf_token %}
+        <div class="modal-header">
+          <h2 class="h6 modal-title">Item: {{ item.id }}</h2>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          ></button>
         </div>
+        <div class="modal-body">
+          {% if item.shift_data.first %}
+          <!-- Se existir shift_data para o item, exibe os dados -->
+
+          <div class="col-lg-12 col-sm-6">
+            <div class="mb-3">
+              <label for="cnes-{{ item.id }}">CNES</label>
+              <input
+                type="text"
+                name="cnes"
+                id="cnes-{{ item.id }}"
+                class="form-control"
+                value="{{ item.shift_data.first.cnes }}"
+                {{ item.shift_data.first.cnes|readonly_if }}
+              />
+            </div>
+            <div class="mb-3">
+              <label for="os_number-{{ item.id }}">O.S. Número</label>
+              <input
+                type="text"
+                name="os_number"
+                id="os_number-{{ item.id }}"
+                class="form-control"
+                value="{{ item.shift_data.first.os_number }}"
+                {{ item.shift_data.first.os_number|readonly_if }}
+
+              />
+            </div>
+            <div class="mb-3">
+              <label for="cartao_sus-{{ item.id }}">Cartão SUS</label>
+              <input
+                type="text"
+                name="cartao_sus"
+                id="cartao_sus-{{ item.id }}"
+                class="form-control"
+                value="{{ item.shift_data.first.cartao_sus }}"
+                {{ item.shift_data.first.cartao_sus|readonly_if }}
+              />
+            </div>
+            <div class="mb-3">
+              <label for="nome_paciente-{{ item.id }}">Nome do Paciente</label>
+              <input
+                type="text"
+                name="nome_paciente"
+                id="nome_paciente-{{ item.id }}"
+                class="form-control"
+                value="{{ item.shift_data.first.nome_paciente }}"
+                {{ item.shift_data.first.nome_paciente|readonly_if }}
+              />
+            </div>
+            <div class="mb-3">
+              <label for="recipiente-{{ item.id }}">Número do recipiente</label>
+              <input
+                type="text"
+                name="recipiente"
+                id="recipiente-{{ item.id }}"
+                class="form-control"
+                value="{{ item.shift_data.first.recipiente }}"
+                {{ item.shift_data.first.recipiente|readonly_if }}
+              />
+            </div>
+            <div class="mb-3">
+              <label for="sexo-{{ item.id }}">Sexo</label>
+              <input
+                type="text"
+                name="sexo"
+                id="sexo-{{ item.id }}"
+                class="form-control"
+                value="{{ item.shift_data.first.sexo }}"
+                {{ item.shift_data.first.sexo|readonly_if }}
+              />
+            </div>
+            <div class="mb-3">
+              <label for="raca_etinia-{{ item.id }}">Raça / Etnia</label>
+              <input
+                type="text"
+                name="raca_etinia"
+                id="raca_etinia-{{ item.id }}"
+                class="form-control"
+                value="{{ item.shift_data.first.raca_etinia }}"
+                {{ item.shift_data.first.raca_etinia|readonly_if }}
+              />
+            </div>
+            <div class="mb-3">
+              <label for="idade_paciente-{{ item.id }}"
+                >Idade do Paciente</label
+              >
+              <input
+                type="number"
+                name="idade_paciente"
+                id="idade_paciente-{{ item.id }}"
+                class="form-control"
+                value="{{ item.shift_data.first.idade_paciente }}"
+                {{ item.shift_data.first.idade_paciente|readonly_if }}
+              />
+            </div>
+            <div class="mb-3">
+              <label for="data_nascimento-{{ item.id }}"
+                >Data de Nascimento</label
+              >
+              <input
+                type="date"
+                name="data_nascimento"
+                id="data_nascimento-{{ item.id }}"
+                class="form-control"
+                value="{{ item.shift_data.first.data_nascimento|date:'Y-m-d' }}"
+                {{ item.shift_data.first.data_nascimento|readonly_if }}
+
+              />
+            </div>
+            <div class="mb-3">
+              <label for="data_coleta-{{ item.id }}">Data de Coleta</label>
+              <input
+                type="datetime-local"
+                name="data_coleta"
+                id="data_coleta-{{ item.id }}"
+                class="form-control"
+                value="{{ item.shift_data.first.data_coleta|iso_to_datetime_local }}"
+                {{ item.shift_data.first.data_coleta|readonly_if }}
+              />
+            </div>
+            <div class="mb-3">
+              <label for="data_liberacao-{{ item.id }}"
+                >Data de Liberação</label
+              >
+              <input
+                type="datetime-local"
+                name="data_liberacao"
+                id="data_liberacao-{{ item.id }}"
+                class="form-control"
+                value="{{ item.shift_data.first.data_liberacao|iso_to_datetime_local }}"
+                {{ item.shift_data.first.data_liberacao|readonly_if }}
+
+              />
+            </div>
+            <div class="mb-3">
+              <label for="tamanho_lesao-{{ item.id }}">Tamanho da Lesão</label>
+              <input
+                type="text"
+                name="tamanho_lesao"
+                id="tamanho_lesao-{{ item.id }}"
+                class="form-control"
+                value="{{ item.shift_data.first.tamanho_lesao }}"
+                {{ item.shift_data.first.tamanho_lesao|readonly_if }}
+
+              />
+            </div>
+            <div class="mb-3">
+              <label for="caracteristica_lesao-{{ item.id }}"
+                >Característica da Lesão</label
+              >
+              <input
+                type="text"
+                name="caracteristica_lesao"
+                id="caracteristica_lesao-{{ item.id }}"
+                class="form-control"
+                value="{{ item.shift_data.first.caracteristica_lesao }}"
+                {{ item.shift_data.first.caracteristica_lesao|readonly_if }}
+
+              />
+            </div>
+            <div class="mb-3">
+              <label for="localizacao_lesao-{{ item.id }}"
+                >Localização da Lesão</label
+              >
+              <input
+                type="text"
+                name="localizacao_lesao"
+                id="localizacao_lesao-{{ item.id }}"
+                class="form-control"
+                value="{{ item.shift_data.first.localizacao_lesao }}"
+                {{ item.shift_data.first.localizacao_lesao|readonly_if }}
+
+              />
+            </div>
+            <div class="mb-3">
+              <label for="codigo_postal-{{ item.id }}">Código Postal</label>
+              <input
+                type="text"
+                name="codigo_postal"
+                id="codigo_postal-{{ item.id }}"
+                class="form-control"
+                value="{{ item.shift_data.first.codigo_postal }}"
+                {{ item.shift_data.first.codigo_postal|readonly_if }}
+
+              />
+            </div>
+            <div class="mb-3">
+              <label for="logradouro-{{ item.id }}">Logradouro</label>
+              <input
+                type="text"
+                name="logradouro"
+                id="logradouro-{{ item.id }}"
+                class="form-control"
+                value="{{ item.shift_data.first.logradouro }}"
+                {{ item.shift_data.first.logradouro|readonly_if }}
+              />
+            </div>
+            <div class="mb-3">
+              <label for="numero_residencial-{{ item.id }}"
+                >Número Residencial</label
+              >
+              <input
+                type="text"
+                name="numero_residencial"
+                id="numero_residencial-{{ item.id }}"
+                class="form-control"
+                value="{{ item.shift_data.first.numero_residencial }}"
+                {{ item.shift_data.first.numero_residencial|readonly_if }}
+              />
+            </div>
+            <div class="mb-3">
+              <label for="cidade-{{ item.id }}">Cidade</label>
+              <input
+                type="text"
+                name="cidade"
+                id="cidade-{{ item.id }}"
+                class="form-control"
+                value="{{ item.shift_data.first.cidade }}"
+                {{ item.shift_data.first.cidade|readonly_if }}
+              />
+            </div>
+            <div class="mb-3">
+              <label for="estado-{{ item.id }}">Estado</label>
+              <input
+                type="text"
+                name="estado"
+                id="estado-{{ item.id }}"
+                class="form-control"
+                value="{{ item.shift_data.first.estado }}"
+                {{ item.shift_data.first.estado|readonly_if }}
+              />
+            </div>
+          </div>
+          {% else %}
+          <div class="col-lg-12 col-sm-6">
+            <div class="mb-1">
+              <label>O item: {{ item.id }}</label>
+              <p>Não há valores criados.</p>
+            </div>
+          </div>
+          {% endif %}
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary">Salvar</button>
+          <button
+            type="button"
+            class="btn btn-link text-gray-600 ms-auto"
+            data-bs-dismiss="modal"
+          >
+            Fechar
+          </button>
+        </div>
+      </form>
     </div>
+  </div>
 </div>
