@@ -111,7 +111,7 @@ class ItemViewSet(viewsets.ModelViewSet):
         if stage not in ['SHIFT', 'IMAGE_PROCESS', 'SISMAMA']:
             return Response({'detail': 'Etapa inválida. Use SHIFT, IMAGE_PROCESS ou SISMAMA.'}, status=status.HTTP_400_BAD_REQUEST)
 
-        items_in_stage = Item.objects.filter(stage=stage)
+        items_in_stage = Item.objects.filter(stage=stage).order_by('created_at')
 
         if not items_in_stage.exists():
             return Response(
