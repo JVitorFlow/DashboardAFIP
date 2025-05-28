@@ -1,34 +1,39 @@
+Veja abaixo uma versão do **README.md** ajustada para usar **exclusivamente o Docker/entrypoint.sh**, sem comandos manuais de `manage.py` e com a URL correta do Swagger:
+
+````markdown
 # Orquestrador RPA
 
 O **Orquestrador RPA** é uma plataforma desenvolvida para permitir que usuários enviem e gerenciem tarefas massivas a serem processadas por robôs de automação (RPA). Essa solução resolve o problema da necessidade de realizar tarefas repetitivas e múltiplas em sistemas que não suportam a entrada massiva de solicitações. O sistema também possui um orquestrador que distribui as tarefas de forma inteligente para o robô com menos itens sob sua responsabilidade.
+
+---
 
 ## 🚀 Visão Geral do Projeto
 
 Este projeto utiliza **Django REST Framework** para a API, **Celery** para gerenciamento de tarefas assíncronas, **RabbitMQ** como message broker e **PostgreSQL** como banco de dados principal. Além disso, utilizamos **Swagger** para documentação da API e **JWT (JSON Web Token)** para autenticação segura.
 
+---
+
 ## 📌 Recursos Principais
 
-✅ Interface gráfica responsiva e intuitiva para os usuários.
-✅ Autenticação e gerenciamento de usuários.
-✅ Envio e processamento de tarefas massivas via CSV.
-✅ API REST para integração com robôs de automação.
-✅ Monitoramento de status dos robôs e atribuição dinâmica de tarefas.
-✅ Desconexão automática de robôs inativos.
-✅ Utilização de Celery para gerenciamento inteligente das tarefas.
-✅ Documentação da API com Swagger.
-✅ Autenticação via Simple JWT.
-✅ Uso de `entrypoint.sh` para automação do ambiente em produção.
+- Interface gráfica responsiva e intuitiva.  
+- Autenticação e gerenciamento de usuários.  
+- Envio e processamento de tarefas massivas via CSV.  
+- API REST para integração com robôs de automação.  
+- Monitoramento de status dos robôs e atribuição dinâmica de tarefas.  
+- Desconexão automática de robôs inativos.  
+- Gerenciamento de tarefas assíncronas com Celery + RabbitMQ.  
+- Documentação da API com Swagger e Redoc.  
+- Autenticação via Simple JWT.  
+- Automação completa do ambiente em produção via `entrypoint.sh`.
 
 ---
 
 ## 🔧 Configuração do Ambiente
 
-### 📁 Criar Arquivo `.env`
-
-Crie um arquivo `.env` na raiz do projeto e preencha com os valores adequados:
+Crie um arquivo `.env` na raiz do projeto com as variáveis abaixo:
 
 ```ini
-SECRET_KEY='chave_secreta'
+SECRET_KEY='sua_chave_secreta'
 POSTGRES_DB='nome_do_banco'
 POSTGRES_USER='usuario_do_banco'
 POSTGRES_PASSWORD='senha_do_banco'
@@ -36,86 +41,95 @@ DB_HOST='db'
 DB_PORT='5432'
 CELERY_BROKER_URL='amqp://guest:guest@rabbitmq:5672//'
 DATABASE_URL='postgres://usuario:senha@db:5432/nome_do_banco'
-OPENAI_API_KEY='chave_api_openai'
-NGROK_AUTHTOKEN='token_ngrok'
-PG_ADMIN_EMAIL='admin@email.com'
-PG_ADMIN_PASSWORD='senha_admin'
+OPENAI_API_KEY='sua_chave_openai'
+NGROK_AUTHTOKEN='seu_token_ngrok'
 DJANGO_SUPERUSER_USERNAME='admin'
-DJANGO_SUPERUSER_EMAIL='admin@email.com'
+DJANGO_SUPERUSER_EMAIL='admin@dominio.com'
 DJANGO_SUPERUSER_PASSWORD='senha_admin'
-```
+````
 
 ---
 
-## 🚀 Instalação e Inicialização
+## 🚀 Instalação e Inicialização via Docker
 
-### 1️⃣ Clonar o Repositório
+1. **Clone o repositório**
 
-```bash
-git clone https://github.com/seu_usuario/orquestrador-rpa.git
-cd orquestrador-rpa
-```
+   ```bash
+   git clone https://github.com/seu_usuario/orquestrador-rpa.git
+   cd orquestrador-rpa
+   ```
 
-### 2️⃣ Criar Ambiente Virtual e Instalar Dependências
+2. **Construa e suba os containers**
+   O `entrypoint.sh` já faz:
 
-```bash
-python3 -m venv env
-source env/bin/activate  # Linux/macOS
-env\Scripts\activate    # Windows
-pip install -r requirements.txt
-```
+   * Espera o banco de dados subir
+   * Roda `makemigrations` e `migrate`
+   * Cria o superusuário se não existir
+   * Coleta arquivos estáticos
+   * Inicia o Gunicorn
 
-### 3️⃣ Criar e Configurar o Banco de Dados
+   Basta executar:
 
-```bash
-python manage.py makemigrations
-python manage.py migrate
-```
+   ```bash
+   docker-compose up --build -d
+   ```
 
-### 4️⃣ Criar Superusuário
+3. **Verifique os logs**
 
-```bash
-python manage.py createsuperuser
-```
+   ```bash
+   docker logs -f <nome_do_container_web>
+   ```
 
-### 5️⃣ Executar o Servidor Django
+4. **Acesse a aplicação**
 
-```bash
-python manage.py runserver
-```
+   * Front-end/API:
 
----
+     ```
+     http://localhost:8000/
+     ```
+   * Swagger UI:
 
-## 📜 Documentação da API com Swagger
+     ```
+     http://localhost:8000/swagger/v1/
+     ```
+   * Redoc:
 
-A documentação da API pode ser acessada através do Swagger na URL:
+     ```
+     http://localhost:8000/redoc/v1/
+     ```
 
-📌 **http://localhost:8000/docs**
+5. **Parando tudo**
+
+   ```bash
+   docker-compose down
+   ```
 
 ---
 
 ## 🔐 Autenticação com Simple JWT
 
-A API utiliza autenticação via **JWT (JSON Web Token)**. Para obter um token de acesso, faça uma requisição `POST`:
+Para obter o token de acesso, faça um `POST` em:
 
 ```http
 POST /api/token/
 Content-Type: application/json
+
 {
-    "username": "seu_usuario",
-    "password": "sua_senha"
+  "username": "admin",
+  "password": "senha_admin"
 }
 ```
 
 Resposta:
+
 ```json
 {
-    "refresh": "token_refresh",
-    "access": "token_access"
+  "refresh": "seu_token_refresh",
+  "access":  "seu_token_access"
 }
 ```
 
-Use o token nos cabeçalhos das requisições autenticadas:
+Use nos cabeçalhos:
 
 ```http
 Authorization: Bearer seu_token_access
@@ -123,85 +137,27 @@ Authorization: Bearer seu_token_access
 
 ---
 
-## ⚙️ Execução no Docker
-
-O projeto usa **Docker** para facilitar a implantação.
-
-### 1️⃣ Construir e Iniciar os Containers
-
-```bash
-docker-compose up --build -d
-```
-
-### 2️⃣ Parar os Containers
-
-```bash
-docker-compose down
-```
-
-### 3️⃣ Visualizar Logs
-
-```bash
-docker logs nome_do_container -f
-```
-
----
-
-## 🔄 Uso do Celery e RabbitMQ
-
-O Celery é utilizado para o processamento assíncrono de tarefas. Para iniciar um worker do Celery, execute:
-
-```bash
-celery -A orchestrator worker --loglevel=info
-```
-
-Para iniciar o **Celery Beat** (agendador de tarefas periódicas):
-
-```bash
-celery -A orchestrator beat --loglevel=info
-```
-
----
-
-## 📡 Exposição do Servidor com Ngrok
-
-O **Ngrok** é utilizado para expor o servidor local para acessos externos.
-
-### 1️⃣ Configurar o arquivo `ngrok.yml`
-
-```yaml
-version: "3"
-agent:
-  authtoken: ${NGROK_AUTHTOKEN}
-
-tunnels:
-  basic:
-    proto: http
-    addr: 80
-```
-
-### 2️⃣ Iniciar o Ngrok
-
-```bash
-docker-compose up ngrok -d
-```
-
----
-
 ## 🛠 EntryPoint.sh
 
-O projeto utiliza um **script de entrada (`entrypoint.sh`)** para automação do ambiente. Esse script:
+Esse script, rodando dentro do container web, automatiza toda a inicialização do Django:
 
-✅ Aguarda o banco de dados ficar pronto antes de iniciar o Django.
-✅ Aplica as migrações automaticamente.
-✅ Cria o superusuário caso necessário.
-✅ Coleta arquivos estáticos.
-✅ Inicia o servidor Gunicorn.
+```sh
+#!/bin/sh
+# entrypoint.sh
 
-Caso precise depurar, verifique os logs:
+echo "🚀 Aguardando PostgreSQL..."
+until pg_isready -h "$DB_HOST" -p "$DB_PORT" -U "$POSTGRES_USER"; do
+  sleep 1
+done
 
-```bash
-docker logs nome_do_container -f
+echo "💾 Aplicando migrations e criando superusuário..."
+python apps/manage.py makemigrations
+python apps/manage.py migrate
+python apps/manage.py createsuperuser --no-input || true
+python apps/manage.py collectstatic --no-input
+
+echo "🔥 Iniciando Gunicorn..."
+exec gunicorn orchestrator.wsgi:application --bind 0.0.0.0:8000
 ```
 
 ---
