@@ -342,27 +342,34 @@ class ItemUpdateView(LoginRequiredMixin, UpdateView):
         shift_data.save()
 
     def get_shift_data_fields(self):
-        """Extrai os campos enviados no formulário relacionados ao ShiftData."""
-        return {
-            'cnes': self.clean_value(self.request.POST.get('cnes')),
-            'os_number': self.clean_value(self.request.POST.get('os_number')),
-            'cartao_sus': self.clean_value(self.request.POST.get('cartao_sus')),
-            'nome_paciente': self.clean_value(self.request.POST.get('nome_paciente')),
-            'sexo': self.clean_value(self.request.POST.get('sexo')),
-            'raca_etinia': self.clean_value(self.request.POST.get('raca_etinia')),
-            'idade_paciente': self.parse_int(self.request.POST.get('idade_paciente')),
-            'data_nascimento': self.parse_date(self.request.POST.get('data_nascimento')),
-            'data_coleta': self.parse_date(self.request.POST.get('data_coleta')),
-            'data_liberacao': self.parse_date(self.request.POST.get('data_liberacao')),
-            'tamanho_lesao': self.clean_value(self.request.POST.get('tamanho_lesao')),
-            'caracteristica_lesao': self.clean_value(self.request.POST.get('caracteristica_lesao')),
-            'localizacao_lesao': self.clean_value(self.request.POST.get('localizacao_lesao')),
-            'codigo_postal': self.clean_value(self.request.POST.get('codigo_postal')),
-            'logradouro': self.clean_value(self.request.POST.get('logradouro')),
-            'numero_residencial': self.clean_value(self.request.POST.get('numero_residencial')),
-            'cidade': self.clean_value(self.request.POST.get('cidade')),
-            'estado': self.clean_value(self.request.POST.get('estado')),
+        """Extrai os campos enviados no formulário relacionados ao ShiftData de forma dinâmica."""
+        campos = {
+            'cnes': self.clean_value,
+            'os_number': self.clean_value,
+            'cartao_sus': self.clean_value,
+            'nome_paciente': self.clean_value,
+            'recipiente': self.clean_value,
+            'sexo': self.clean_value,
+            'raca_etinia': self.clean_value,
+            'idade_paciente': self.parse_int,
+            'data_nascimento': self.parse_date,
+            'data_coleta': self.parse_date,
+            'data_liberacao': self.parse_date,
+            'tamanho_lesao': self.clean_value,
+            'caracteristica_lesao': self.clean_value,
+            'localizacao_lesao': self.clean_value,
+            'codigo_postal': self.clean_value,
+            'logradouro': self.clean_value,
+            'numero_residencial': self.clean_value,
+            'cidade': self.clean_value,
+            'estado': self.clean_value,
         }
+
+        return {
+            campo: func(self.request.POST.get(campo))
+            for campo, func in campos.items()
+        }
+
 
     @staticmethod
     def parse_date(date_str):

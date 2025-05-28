@@ -2,6 +2,7 @@ from rest_framework import serializers
 from .models import Item
 from apps.tasks.models import Task
 
+from apps.values.serializer import ShiftDataMiniSerializer
 
 class TaskSummarySerializer(serializers.ModelSerializer):
     """
@@ -14,9 +15,7 @@ class TaskSummarySerializer(serializers.ModelSerializer):
 
 
 class ItemSerializer(serializers.ModelSerializer):
-    """
-    Serializador para os Itens, incluindo os campos de OS, nome e mensagem de erro do bot.
-    """
+    shift_data = serializers.SerializerMethodField()
 
     class Meta:
         model = Item
@@ -34,4 +33,11 @@ class ItemSerializer(serializers.ModelSerializer):
             "sismama_result",
             "stage",
             "is_authorized",
+            "shift_data",
         ]
+
+    def get_shift_data(self, obj):
+        shift_data = obj.shift_data.first()
+        if shift_data:
+            return ShiftDataMiniSerializer(shift_data).data
+        return None
