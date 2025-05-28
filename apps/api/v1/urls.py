@@ -4,7 +4,6 @@ from apps.robots.views import RobotViewSet
 from apps.items.views import ItemViewSet
 from apps.tasks.views import TaskViewSet
 from apps.values.views import ShiftDataViewSet
-from apps.ai.views import AIAssessmentFormDataAPIView
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
@@ -20,7 +19,7 @@ router.register(r'shift-data', ShiftDataViewSet, basename='shift-data')
 urlpatterns = [
     path('login/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('login/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    path('analysis/form/', AIAssessmentFormDataAPIView.as_view(), name='analysis_form_create'),
+    path('analysis/form/', include('apps.ai.urls')),
     # Inclui as URLs geradas pelo router
     path('', include(router.urls)),
 ]

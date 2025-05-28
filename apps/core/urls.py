@@ -7,8 +7,9 @@ from apps.tasks.views import DashboardListView
 from apps.items.views import ItemListView, ItemUpdateView
 from rest_framework import permissions
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from django.conf import settings
+from django.conf.urls.static import static
 
-# Configuração do drf-yasg para gerar a documentação da API
 schema_view_v1 = get_schema_view(
     openapi.Info(
         title="Documentação da API Orchestrator",
@@ -53,3 +54,10 @@ urlpatterns = [
         name="schema-redoc-v1",
     ),
 ]
+
+
+if settings.DEBUG:
+    urlpatterns += static(
+        settings.MEDIA_URL,
+        document_root=settings.MEDIA_ROOT
+    )
