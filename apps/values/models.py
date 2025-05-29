@@ -51,3 +51,6 @@ class ShiftData(models.Model):
 
     def __str__(self):
         return f"ShiftData para Task {self.task.id}, Item {self.item.id}"
+
+    class Meta:
+        unique_together = ('item',)

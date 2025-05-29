@@ -311,9 +311,10 @@ class ItemViewSet(viewsets.ModelViewSet):
         # vincula o FK task/item
         data.update(task=item.task_id, item=item)
 
-        # faz o upsert: filtra por os_number (e opcionalmente task)
+        # Upsert baseado unicamente no item (evita duplicidade por os_number)
         shift_obj, created = ShiftData.objects.update_or_create(
-            os_number=data['os_number'], defaults=data
+            item=item,
+            defaults=data
         )
 
         out = ShiftDataUpsertSerializer(shift_obj)
