@@ -1,6 +1,8 @@
 from rest_framework import serializers
 from .models import Item
 from apps.tasks.models import Task
+from apps.values.models import ShiftData
+
 
 from apps.values.serializer import ShiftDataMiniSerializer
 
@@ -41,3 +43,11 @@ class ItemSerializer(serializers.ModelSerializer):
         if shift_data:
             return ShiftDataMiniSerializer(shift_data).data
         return None
+    
+
+
+class ShiftDataUpsertSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ShiftData
+        fields = '__all__'
+        read_only_fields = ('id',)

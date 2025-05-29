@@ -1,40 +1,44 @@
-from typing import Any, Dict
-from django.shortcuts import redirect
-from django.urls import reverse
-from django.db.models.query import QuerySet
-from rest_framework.response import Response
-from rest_framework import viewsets, status
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.decorators import action
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django.views.generic import ListView
-from django.shortcuts import get_object_or_404
-from apps.robots.models import Robot
 from collections import defaultdict
-from apps.items.models import Item
-from apps.tasks.models import Task
-from .serializer import TaskSummarySerializer, ItemSerializer
+from datetime import datetime
+from typing import Any, Dict
 
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db.models.query import QuerySet
+from django.shortcuts import get_object_or_404, redirect
+from django.urls import reverse
+from django.views.generic import ListView
+from django.views.generic.edit import UpdateView
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
+from rest_framework import status, viewsets
+from rest_framework.decorators import action
 from rest_framework.exceptions import NotFound
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.response import Response
 
-from django.views.generic.edit import UpdateView
-from django.urls import reverse_lazy
+from apps.items.models import Item
+from apps.robots.models import Robot
+from apps.tasks.models import Task
+from apps.values.models import ShiftData
+from apps.values.serializer import ShiftDataSerializer
+
 from .forms import ShiftDataForm
-from datetime import datetime
+from .serializer import (ItemSerializer, ShiftDataUpsertSerializer,
+                         TaskSummarySerializer)
+
+
 class ItemViewSet(viewsets.ModelViewSet):
     """
     ViewSet para visualizar, editar e gerenciar itens.
     """
+
     queryset = Item.objects.all()
     serializer_class = ItemSerializer
     permission_classes = [IsAuthenticated]
 
     @swagger_auto_schema(
-        operation_description="Listar todos os itens cadastrados.",
-        operation_summary="Listar Itens"
+        operation_description='Listar todos os itens cadastrados.',
+        operation_summary='Listar Itens',
     )
     def list(self, request, *args, **kwargs):
         """
@@ -43,8 +47,8 @@ class ItemViewSet(viewsets.ModelViewSet):
         return super().list(request, *args, **kwargs)
 
     @swagger_auto_schema(
-        operation_description="Criar um novo item no sistema.",
-        operation_summary="Criar Item"
+        operation_description='Criar um novo item no sistema.',
+        operation_summary='Criar Item',
     )
     def create(self, request, *args, **kwargs):
         """
@@ -53,8 +57,8 @@ class ItemViewSet(viewsets.ModelViewSet):
         return super().create(request, *args, **kwargs)
 
     @swagger_auto_schema(
-        operation_description="Obter detalhes de um item específico pelo ID.",
-        operation_summary="Detalhar Item"
+        operation_description='Obter detalhes de um item específico pelo ID.',
+        operation_summary='Detalhar Item',
     )
     def retrieve(self, request, *args, **kwargs):
         """
@@ -63,8 +67,8 @@ class ItemViewSet(viewsets.ModelViewSet):
         return super().retrieve(request, *args, **kwargs)
 
     @swagger_auto_schema(
-        operation_description="Atualizar completamente um item específico pelo ID.",
-        operation_summary="Atualizar Item"
+        operation_description='Atualizar completamente um item específico pelo ID.',
+        operation_summary='Atualizar Item',
     )
     def update(self, request, *args, **kwargs):
         """
@@ -73,8 +77,8 @@ class ItemViewSet(viewsets.ModelViewSet):
         return super().update(request, *args, **kwargs)
 
     @swagger_auto_schema(
-        operation_description="Atualizar parcialmente um item específico pelo ID.",
-        operation_summary="Atualizar Parcialmente Item"
+        operation_description='Atualizar parcialmente um item específico pelo ID.',
+        operation_summary='Atualizar Parcialmente Item',
     )
     def partial_update(self, request, *args, **kwargs):
         """
@@ -83,8 +87,8 @@ class ItemViewSet(viewsets.ModelViewSet):
         return super().partial_update(request, *args, **kwargs)
 
     @swagger_auto_schema(
-        operation_description="Deletar um item específico pelo ID.",
-        operation_summary="Deletar Item"
+        operation_description='Deletar um item específico pelo ID.',
+        operation_summary='Deletar Item',
     )
     def destroy(self, request, *args, **kwargs):
         """
@@ -93,11 +97,16 @@ class ItemViewSet(viewsets.ModelViewSet):
         return super().destroy(request, *args, **kwargs)
 
     @swagger_auto_schema(
-        operation_description="Listar todos os itens em uma etapa específica (SHIFT, IMAGE_PROCESS, SISMAMA).",
-        operation_summary="Listar Itens por Etapa",
+        operation_description='Listar todos os itens em uma etapa específica (SHIFT, IMAGE_PROCESS, SISMAMA).',
+        operation_summary='Listar Itens por Etapa',
         manual_parameters=[
-            openapi.Parameter("stage", openapi.IN_QUERY, description="Etapa do processamento (SHIFT, IMAGE_PROCESS, SISMAMA).", type=openapi.TYPE_STRING)
-        ]
+            openapi.Parameter(
+                'stage',
+                openapi.IN_QUERY,
+                description='Etapa do processamento (SHIFT, IMAGE_PROCESS, SISMAMA).',
+                type=openapi.TYPE_STRING,
+            )
+        ],
     )
     @action(detail=False, methods=['get'], url_path='by-stage')
     def list_by_stage(self, request):
@@ -109,14 +118,21 @@ class ItemViewSet(viewsets.ModelViewSet):
         """
         stage = request.query_params.get('stage')
         if stage not in ['SHIFT', 'IMAGE_PROCESS', 'SISMAMA']:
-            return Response({'detail': 'Etapa inválida. Use SHIFT, IMAGE_PROCESS ou SISMAMA.'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {
+                    'detail': 'Etapa inválida. Use SHIFT, IMAGE_PROCESS ou SISMAMA.'
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
-        items_in_stage = Item.objects.filter(stage=stage).order_by('created_at')
+        items_in_stage = Item.objects.filter(stage=stage).order_by(
+            'created_at'
+        )
 
         if not items_in_stage.exists():
             return Response(
-                {"detail": f"Nenhum item encontrado na etapa {stage}."},
-                status=status.HTTP_200_OK
+                {'detail': f'Nenhum item encontrado na etapa {stage}.'},
+                status=status.HTTP_200_OK,
             )
 
         # Organiza os itens por tarefa usando um dicionário
@@ -134,16 +150,46 @@ class ItemViewSet(viewsets.ModelViewSet):
         return Response(response_data, status=status.HTTP_200_OK)
 
     @swagger_auto_schema(
-        operation_description="Atualizar o status e a etapa de um item pelo seu ID e pelo `robot_id` associado.",
-        operation_summary="Atualizar Status e Etapa do Item",
+        operation_description='Atualizar o status e a etapa de um item pelo seu ID e pelo `robot_id` associado.',
+        operation_summary='Atualizar Status e Etapa do Item',
         manual_parameters=[
-            openapi.Parameter("robot_id", openapi.IN_QUERY, description="ID do robô.", type=openapi.TYPE_INTEGER),
-            openapi.Parameter("status", openapi.IN_QUERY, description="Novo status do item.", type=openapi.TYPE_STRING),
-            openapi.Parameter("stage", openapi.IN_QUERY, description="Nova etapa do item (SHIFT, IMAGE_PROCESS, SISMAMA, COMPLETED).", type=openapi.TYPE_STRING),
-            openapi.Parameter("item__started_at", openapi.IN_QUERY, description="Data e hora de início (formato: AAAA-MM-DD HH:MM:SS).", type=openapi.TYPE_STRING),
-            openapi.Parameter("item__ended_at", openapi.IN_QUERY, description="Data e hora de término (formato: AAAA-MM-DD HH:MM:SS).", type=openapi.TYPE_STRING),
-            openapi.Parameter("bot_error_message", openapi.IN_QUERY, description="Mensagem de erro do bot, se houver.", type=openapi.TYPE_STRING),
-        ]
+            openapi.Parameter(
+                'robot_id',
+                openapi.IN_QUERY,
+                description='ID do robô.',
+                type=openapi.TYPE_INTEGER,
+            ),
+            openapi.Parameter(
+                'status',
+                openapi.IN_QUERY,
+                description='Novo status do item.',
+                type=openapi.TYPE_STRING,
+            ),
+            openapi.Parameter(
+                'stage',
+                openapi.IN_QUERY,
+                description='Nova etapa do item (SHIFT, IMAGE_PROCESS, SISMAMA, COMPLETED).',
+                type=openapi.TYPE_STRING,
+            ),
+            openapi.Parameter(
+                'item__started_at',
+                openapi.IN_QUERY,
+                description='Data e hora de início (formato: AAAA-MM-DD HH:MM:SS).',
+                type=openapi.TYPE_STRING,
+            ),
+            openapi.Parameter(
+                'item__ended_at',
+                openapi.IN_QUERY,
+                description='Data e hora de término (formato: AAAA-MM-DD HH:MM:SS).',
+                type=openapi.TYPE_STRING,
+            ),
+            openapi.Parameter(
+                'bot_error_message',
+                openapi.IN_QUERY,
+                description='Mensagem de erro do bot, se houver.',
+                type=openapi.TYPE_STRING,
+            ),
+        ],
     )
     @action(detail=True, methods=['patch'], url_path='update-status')
     def update_status(self, request, pk=None):
@@ -160,41 +206,55 @@ class ItemViewSet(viewsets.ModelViewSet):
         robot_id = request.data.get('robot_id')
         stage = request.data.get('stage')
 
-        if not robot_id or stage not in ['SHIFT', 'IMAGE_PROCESS', 'SISMAMA', 'COMPLETED']:
-            return Response({'detail': 'robot_id ausente ou etapa inválida.'}, status=status.HTTP_400_BAD_REQUEST)
+        if not robot_id or stage not in [
+            'SHIFT',
+            'IMAGE_PROCESS',
+            'SISMAMA',
+            'COMPLETED',
+        ]:
+            return Response(
+                {'detail': 'robot_id ausente ou etapa inválida.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         try:
             robot = Robot.objects.get(id=robot_id)
             item = Item.objects.get(id=pk)
         except (Robot.DoesNotExist, Item.DoesNotExist):
-            raise NotFound(detail="Robô ou item não encontrado.")
+            raise NotFound(detail='Robô ou item não encontrado.')
 
         # Atualiza o status e a etapa do item
-        serializer = ItemSerializer(instance=item, data=request.data, partial=True)
+        serializer = ItemSerializer(
+            instance=item, data=request.data, partial=True
+        )
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
 
     @swagger_auto_schema(
-        operation_description="Autoriza a continuação do processamento do item.",
-        operation_summary="Autorizar Item",
-        responses={200: ItemSerializer}
+        operation_description='Autoriza a continuação do processamento do item.',
+        operation_summary='Autorizar Item',
+        responses={200: ItemSerializer},
     )
-    @action(detail=True, methods=['patch'], url_path='authorize', permission_classes=[AllowAny])
+    @action(
+        detail=True,
+        methods=['patch'],
+        url_path='authorize',
+        permission_classes=[AllowAny],
+    )
     def authorize(self, request, pk=None):
         """
         Atualiza o campo is_authorized para True para autorizar a continuação do item.
-        
+
         Retorna:
         - Response: Confirmação da autorização.
         """
         try:
             item = Item.objects.get(id=pk)
         except Item.DoesNotExist:
-            raise NotFound(detail="Item não encontrado.")
+            raise NotFound(detail='Item não encontrado.')
 
         # Atualiza o campo is_authorized para True
         item.is_authorized = True
@@ -203,68 +263,69 @@ class ItemViewSet(viewsets.ModelViewSet):
         serializer = ItemSerializer(item)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    @action(detail=False, methods=["get"], url_path="sismama-data")
+    @action(detail=False, methods=['get'], url_path='sismama-data')
     def get_sismama_data(self, request):
-        """
-        Endpoint para obter dados do SISMAMA (apenas itens autorizados com dados do Shift).
-        """
-        # Filtrar itens autorizados
-        authorized_items = (
-            Item.objects.filter(is_authorized=True, stage="SISMAMA")
-            .select_related("task_id")  # Evita múltiplas consultas para o Task
-            .prefetch_related("shift_data")  # Otimiza acesso ao ShiftData
+        authorized = (
+            Item.objects.filter(is_authorized=True, stage='SISMAMA')
+            .select_related('task')
+            .prefetch_related('shift_data')
         )
 
-        # Buscar dados relacionados do ShiftData
-        sismama_data = []
-        for item in authorized_items:
-            shift_data = item.shift_data.first()  # Assumindo que `shift_data` é uma relação OneToMany
-            if shift_data:
-                sismama_data.append({
-                    "item_id": item.id,
-                    "os_number": item.os_number,
-                    "os_name": item.os_name,
-                    "created_at": item.created_at,
-                    "started_at": item.started_at,
-                    "ended_at": item.ended_at,
-                    "status": item.status,
-                    "stage": item.stage,
-                    "shift_result": item.shift_result,
-                    "image_result": item.image_result, 
-                    "is_authorized": item.is_authorized,
-                    # Dados do ShiftData
-                    "shift_data": {
-                        "cnes": shift_data.cnes,
-                        "cartao_sus": shift_data.cartao_sus,
-                        "nome_paciente": shift_data.nome_paciente,
-                        "sexo": shift_data.sexo,
-                        "raca_etinia": shift_data.raca_etinia,
-                        "idade_paciente": shift_data.idade_paciente,
-                        "data_nascimento": shift_data.data_nascimento,
-                        "data_coleta": shift_data.data_coleta,
-                        "data_liberacao": shift_data.data_liberacao,
-                        "tamanho_lesao": shift_data.tamanho_lesao,
-                        "caracteristica_lesao": shift_data.caracteristica_lesao,
-                        "localizacao_lesao": shift_data.localizacao_lesao,
-                        "logradouro": shift_data.logradouro,
-                        "codigo_postal": shift_data.codigo_postal,
-                        "numero_residencial": shift_data.numero_residencial,
-                        "cidade": shift_data.cidade,
-                        "estado": shift_data.estado,
-                    }
-                })
+        result = []
+        for item in authorized:
+            sd = item.shift_data.first()
+            if not sd:
+                continue
+            item_data = ItemSerializer(item).data
+            sd_data = ShiftDataSerializer(sd).data
 
-        # Retornar a resposta
-        if not sismama_data:
-            return Response({"detail": "Nenhum dado autorizado encontrado para SISMAMA."}, status=status.HTTP_200_OK)
+            result.append({**item_data, 'shift_data': sd_data})
 
-        return Response(sismama_data, status=status.HTTP_200_OK)
+        if not result:
+            return Response(
+                {'detail': 'Nenhum dado autorizado encontrado.'}, status=200
+            )
+        return Response(result, status=200)
+
+    @swagger_auto_schema(
+        operation_summary='Upsert de ShiftData por item',
+        request_body=ShiftDataUpsertSerializer,
+        responses={
+            200: ShiftDataUpsertSerializer,
+            201: ShiftDataUpsertSerializer,
+        },
+    )
+    @action(detail=True, methods=['post'], url_path='shift-data')
+    def upsert_shift_data(self, request, pk=None):
+        """
+        Cria ou atualiza o ShiftData para este item:
+        - Se já existir registro com o mesmo os_number (e task, se desejar),
+        atualiza com os novos dados.
+        - Caso contrário, cria um novo.
+        """
+        item = self.get_object()
+        serializer = ShiftDataUpsertSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        data = serializer.validated_data
+
+        # vincula o FK task/item
+        data.update(task=item.task_id, item=item)
+
+        # faz o upsert: filtra por os_number (e opcionalmente task)
+        shift_obj, created = ShiftData.objects.update_or_create(
+            os_number=data['os_number'], defaults=data
+        )
+
+        out = ShiftDataUpsertSerializer(shift_obj)
+        code = status.HTTP_201_CREATED if created else status.HTTP_200_OK
+        return Response(out.data, status=code)
 
 
 class ItemListView(LoginRequiredMixin, ListView):
     """
     View to display the list of items associated with a task.
     """
+
     login_url = 'login'
     template_name = 'home/items.html'
 
@@ -280,7 +341,7 @@ class ItemListView(LoginRequiredMixin, ListView):
         Obtains the set of items associated with the task.
         Also fetches the associated ShiftData.
         """
-        queryset = Item.objects.filter(task_id=self.task).order_by("-id")
+        queryset = Item.objects.filter(task_id=self.task).order_by('-id')
         # Pré-carregar os dados de ShiftData para otimizar consultas
         queryset = queryset.prefetch_related('shift_data')
         return queryset
@@ -297,7 +358,7 @@ class ItemListView(LoginRequiredMixin, ListView):
 
 class ItemUpdateView(LoginRequiredMixin, UpdateView):
     model = Item
-    fields = [] 
+    fields = []
     template_name = 'includes/modal_default.html'
 
     def get_success_url(self):
@@ -336,7 +397,9 @@ class ItemUpdateView(LoginRequiredMixin, UpdateView):
 
         shift_data_fields = self.get_shift_data_fields()
         for field, value in shift_data_fields.items():
-            if value is not None and str(value).strip():  # Evita sobrescrever com valores vazios
+            if (
+                value is not None and str(value).strip()
+            ):  # Evita sobrescrever com valores vazios
                 setattr(shift_data, field, value)
 
         shift_data.save()
@@ -370,14 +433,13 @@ class ItemUpdateView(LoginRequiredMixin, UpdateView):
             for campo, func in campos.items()
         }
 
-
     @staticmethod
     def parse_date(date_str):
         """Converte data do formato 'YYYY-MM-DD' para um objeto date ou retorna None."""
         if not date_str:
             return None
         try:
-            date_str = date_str.split("T")[0]  # Remove horário se presente
+            date_str = date_str.split('T')[0]  # Remove horário se presente
             return datetime.strptime(date_str, '%Y-%m-%d').date()
         except (ValueError, TypeError):
             return None
@@ -394,4 +456,3 @@ class ItemUpdateView(LoginRequiredMixin, UpdateView):
     def clean_value(value):
         """Remove espaços extras e retorna None se o valor for vazio."""
         return value.strip() if value and value.strip() else None
-
