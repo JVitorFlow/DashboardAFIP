@@ -267,7 +267,6 @@ class ItemViewSet(viewsets.ModelViewSet):
     def get_sismama_data(self, request):
         authorized = (
             Item.objects.filter(is_authorized=True, stage='SISMAMA')
-            .select_related('task')
             .prefetch_related('shift_data')
         )
 
