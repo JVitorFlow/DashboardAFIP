@@ -20,16 +20,12 @@ DEBUG = True
 
 NGROK_DOMAIN = os.getenv("NGROK_DOMAIN")
 
-ALLOWED_HOSTS = [
-    '10.77.176.27',
-]
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',')
 
 if NGROK_DOMAIN:
     ALLOWED_HOSTS.append(NGROK_DOMAIN)
 
-CORS_ALLOWED_ORIGINS = [
-    'http://10.77.176.27',
-]
+CORS_ALLOWED_ORIGINS = os.getenv('CORS_ALLOWED_ORIGINS', '').split(',')
 
 if NGROK_DOMAIN:
     CORS_ALLOWED_ORIGINS.append(f"https://{NGROK_DOMAIN}")
