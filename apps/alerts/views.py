@@ -1,17 +1,17 @@
 from rest_framework import generics
 from .models import RobotAlert
 from .serializers import RobotAlertSerializer
-
+from django.views.generic import TemplateView
+from rest_framework.exceptions import ValidationError
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 
 class RobotAlertCreateAPIView(generics.CreateAPIView):
     """
-    API endpoint para registrar um alerta de robô.
-    Exemplo de uso:
-      - alert_type: "start" para notificar que o robô está iniciando;
-      - alert_type: "finish" para notificar que o robô terminou a execução;
-      - alert_type: "error" para notificar um erro.
+    Cria um novo alerta no sistema.
+
+    Use este endpoint para registrar eventos relevantes do robô,
+    como início de execução, término ou falhas durante o processo.
     """
     queryset = RobotAlert.objects.all()
     serializer_class = RobotAlertSerializer
@@ -29,17 +29,26 @@ class RobotAlertCreateAPIView(generics.CreateAPIView):
 
 class RobotAlertListAPIView(generics.ListAPIView):
     """
-    API endpoint para listar os alertas registrados.
-    Pode ser filtrado por robô, tipo de alerta, data, etc. (se necessário).
+    Lista alertas do sistema, podendo filtrar por `created_at` com ?since=timestamp
     """
-    queryset = RobotAlert.objects.all().order_by("-created_at")
     serializer_class = RobotAlertSerializer
 
-    @swagger_auto_schema(
-        operation_description="Lista todos os alertas de robô cadastrados.",
-        responses={
-            200: openapi.Response('Lista de alertas', RobotAlertSerializer(many=True)),
-        }
-    )
-    def get(self, request, *args, **kwargs):
-        return super().get(request, *args, **kwargs)
+    def get_queryset(self):
+        queryset = RobotAlert.objects.all().order_by("-created_at")
+        since = self.request.query_params.get("since")
+
+        if since:
+            try:
+                from django.utils.dateparse import parse_datetime
+                since_dt = parse_datetime(since)
+                if since_dt is None:
+                    raise ValueError()
+                queryset = queryset.filter(created_at__gt=since_dt)
+            except ValueError:
+                raise ValidationError({"since": "Formato de data inválido. Use formato ISO 8601."})
+
+        return queryset
+
+
+class AlertListView(TemplateView):
+    template_name = "alerts/list.html"
