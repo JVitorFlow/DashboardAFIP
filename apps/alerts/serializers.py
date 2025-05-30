@@ -2,17 +2,36 @@ from rest_framework import serializers
 from .models import RobotAlert
 
 class RobotAlertSerializer(serializers.ModelSerializer):
-    # Limita os tipos de alerta permitidos (exemplo: start, finish, error)
-    ALERT_TYPES = (
-        ("start", "Start"),
-        ("finish", "Finish"),
-        ("error", "Error"),
+    """
+    Serializer para o modelo RobotAlert.
+
+    - Flexível: não restringe os tipos de alerta com choices fixos.
+    - Seguro: mantém campos de leitura como 'id' e 'created_at'.
+    """
+
+    alert_type = serializers.ChoiceField(
+        choices=RobotAlert.ALERT_TYPES,
+        help_text="Tipo do alerta. Valores permitidos: Informacao, Erro, Sucesso, Alerta, Debug, Timeout, Validacao, Interrupcao."
     )
-    alert_type = serializers.ChoiceField(choices=ALERT_TYPES)
+
+    message = serializers.CharField(
+        help_text="Mensagem descritiva do alerta."
+    )
+
+    details = serializers.CharField(
+        required=False,
+        allow_blank=True,
+        help_text="Detalhes técnicos do alerta (stack trace, logs, etc.)."
+    )
 
     class Meta:
         model = RobotAlert
-        # Inclui todos os campos que você deseja expor via API;
-        # 'id' e 'created_at' serão somente leitura
-        fields = "__all__"
+        fields = [
+            "id",
+            "robot",
+            "alert_type",
+            "message",
+            "details",
+            "created_at",
+        ]
         read_only_fields = ("id", "created_at")
