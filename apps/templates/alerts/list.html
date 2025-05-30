@@ -1,0 +1,63 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+
+{% block title %} Alertas {% endblock %}
+
+{% block stylesheets %}
+<link rel="stylesheet" href="{% static 'assets/css/alerts/alert.css' %}">
+{% endblock stylesheets %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <h4 class="fw-bold">Alertas</h4>
+    <p class="text-muted">
+        Visualize os alertas mais recentes gerados pela automação.
+    </p>
+
+    <div class="card p-3 shadow-sm">
+        <table id="alert-table" class="table table-hover align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th>Tipo</th>
+                    <th>Mensagem</th>
+                    <th>Data</th>
+                </tr>
+            </thead>
+            <tbody id="alert-table-body">
+                <tr>
+                    <td colspan="3" class="text-muted">Carregando alertas...</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal para detalhes do alerta -->
+<div class="modal fade" id="alertModal" tabindex="-1" aria-labelledby="alertModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="alertModalLabel">Detalhes do Alerta</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+      </div>
+      <div class="modal-body">
+        <p><strong>Mensagem:</strong></p>
+        <p id="modal-alert-message" class="text-break"></p>
+        <hr>
+        <p><strong>Detalhes Técnicos:</strong></p>
+        <pre id="modal-alert-details" class="bg-light p-2 rounded text-danger small overflow-auto"></pre>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}
+
+{% block javascripts %}
+<script src="{% static 'assets/js/alerts/alert-list.js' %}"></script>
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+{% endblock javascripts %}
