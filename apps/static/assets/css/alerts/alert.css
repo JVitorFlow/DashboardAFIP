@@ -1,0 +1,45 @@
+.icon-circle {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  background-color: #e9ecef;
+  color: #495057;
+}
+
+.icon-circle.text-primary {
+  background-color: #cfe2ff;
+  color: #084298;
+}
+
+.icon-circle.text-danger {
+  background-color: #f8d7da;
+  color: #842029;
+}
+
+.icon-circle.text-success {
+  background-color: #d1e7dd;
+  color: #0f5132;
+}
+
+.icon-circle.text-warning {
+  background-color: #fff3cd;
+  color: #664d03;
+}
+
+.icon-circle.text-secondary {
+  background-color: #e2e3e5;
+  color: #41464b;
+}
+
+.alert-link {
+  cursor: pointer;
+  color: inherit;
+  text-decoration: underline;
+}
+.alert-link:hover {
+  color: #0d6efd;
+}
