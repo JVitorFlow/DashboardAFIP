@@ -37,6 +37,8 @@ urlpatterns = [
     path("items/<int:pk>/update/", ItemUpdateView.as_view(), name="item_update"),
     path("api/", include("apps.api.urls")),
     path("api/v1/alerts/", include("apps.alerts.v1.urls")),
+    path('alerts/', include("apps.alerts.urls")),
+
     # URLs da documentação gerada pelo drf-yasg
     re_path(
         r"^swagger/v1(?P<format>\.json|\.yaml)$",
