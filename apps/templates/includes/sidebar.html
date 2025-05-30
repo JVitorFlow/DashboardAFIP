@@ -32,8 +32,19 @@
                       <li><a class="link_name" href="{% url 'alerts' %}">Alertas</a></li>
                     </ul>
                 </li>
+
+                {% if request.user.is_staff %}
+                    <li class="nav-item">
+                        <a href="/admin/" target="_blank">
+                            <i class="bi bi-tools"></i>
+                            <span class="link_name">Admin</span>
+                        </a>
+                        <ul class="sub-menu blank">
+                            <li><a class="link_name" href="/admin/" target="_blank">Admin</a></li>
+                        </ul>
+                    </li>
+                {% endif %}
                   
-                                  
                 <li class="nav-item">
                     <a href="{% url 'logout' %}">
                         <i class="fas fa-sign-out-alt"></i>
