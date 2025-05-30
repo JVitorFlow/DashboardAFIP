@@ -22,6 +22,18 @@
                         <li><a class="link_name" href="{% url 'tasks' %}">Tarefas</a></li>
                     </ul>
                 </li>
+                
+                <li class="nav-item {% if segment == 'alerts' %} active {% endif %}">
+                    <a href="{% url 'alerts' %}">
+                      <i class="fas fa-bell"></i>
+                      <span class="link_name">Alertas</span>
+                    </a>
+                    <ul class="sub-menu blank">
+                      <li><a class="link_name" href="{% url 'alerts' %}">Alertas</a></li>
+                    </ul>
+                </li>
+                  
+                                  
                 <li class="nav-item">
                     <a href="{% url 'logout' %}">
                         <i class="fas fa-sign-out-alt"></i>
