@@ -40,16 +40,34 @@
     `;
   };
 
+  const toBase64 = (str) => {
+    const bytes = new TextEncoder().encode(str);
+    let binary = "";
+    for (const b of bytes) {
+      binary += String.fromCharCode(b);
+    }
+    return btoa(binary);
+  };
+  
+  const fromBase64 = (b64) => {
+    const binary = atob(b64);
+    const bytes = Uint8Array.from(binary.split(""), (ch) => ch.charCodeAt(0));
+    return new TextDecoder().decode(bytes);
+  };
+  
+
   const converterAlertaParaLinha = (alerta) => {
     const htmlTipo = montarHTMLTipo(alerta.alert_type);
 
     let htmlMensagem;
     if (alerta.details) {
-      const payload = JSON.stringify(alerta).replace(/'/g, "\\'");
+      const jsonStr = JSON.stringify(alerta);
+      const b64 = toBase64(jsonStr);
+
       htmlMensagem = `
         <span class="alert-link" style="cursor: pointer;"
-              data-alert='${payload}'
-              onclick="mostrarDetalhesAlerta(JSON.parse(this.dataset.alert))">
+              data-alert-b64="${b64}"
+              onclick="mostrarDetalhesAlertaBase64(this.dataset.alertB64)">
           ${alerta.message}
         </span>
       `;
@@ -61,7 +79,17 @@
     return [ htmlTipo, htmlMensagem, dataTexto ];
   };
 
-  window.mostrarDetalhesAlerta = (alerta) => {
+  window.mostrarDetalhesAlertaBase64 = (b64) => {
+    try {
+      const jsonStr = fromBase64(b64);
+      const alerta = JSON.parse(jsonStr);
+      mostrarDetalhesAlerta(alerta);
+    } catch (e) {
+      console.error("Falha ao decodificar/parsear alerta:", e);
+    }
+  };
+
+  const mostrarDetalhesAlerta = (alerta) => {
     const modalEl = document.getElementById("alertModal");
     const modalMessage = document.getElementById("modal-alert-message");
     const modalDetails = document.getElementById("modal-alert-details");
